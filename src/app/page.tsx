@@ -1221,10 +1221,10 @@ function NewSectionModal({ onClose, showToast }: { onClose: () => void; showToas
   const colors = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#06b6d4']
   const [name, setName] = useState('')
   const [color, setColor] = useState(colors[0])
-  const [roles, setRoles] = useState<string[]>(['Owner'])
+  const [roles, setRoles] = useState<string[]>([])
   const projectRoles = store.getProjectRoles()
 
-  const toggle = (r: string) => { if (r !== 'Owner') setRoles(rs => rs.includes(r) ? rs.filter(x => x !== r) : [...rs, r]) }
+  const toggle = (r: string) => setRoles(rs => rs.includes(r) ? rs.filter(x => x !== r) : [...rs, r])
 
   return (
     <Modal title="New section" onClose={onClose}>
@@ -1238,7 +1238,7 @@ function NewSectionModal({ onClose, showToast }: { onClose: () => void; showToas
         <Label style={{ marginTop: 16 }}>Who can edit?</Label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {projectRoles.map(r => (
-            <button key={r.id} type="button" onClick={() => toggle(r.name)} style={{ padding: '6px 10px', borderRadius: theme.radius.sm, border: `1px solid ${roles.includes(r.name) ? theme.accent.primary : theme.border.default}`, backgroundColor: roles.includes(r.name) ? theme.accent.muted : 'transparent', color: theme.text.primary, cursor: r.name === 'Owner' ? 'default' : 'pointer', fontSize: 11, opacity: r.name === 'Owner' ? 0.6 : 1 }}>{r.name === 'Owner' ? '👑 ' : ''}{r.name}</button>
+            <button key={r.id} type="button" onClick={() => toggle(r.name)} style={{ padding: '6px 10px', borderRadius: theme.radius.sm, border: `1px solid ${roles.includes(r.name) ? theme.accent.primary : theme.border.default}`, backgroundColor: roles.includes(r.name) ? theme.accent.muted : 'transparent', color: theme.text.primary, cursor: 'pointer', fontSize: 11 }}>{r.name}</button>
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
@@ -1272,7 +1272,7 @@ function EditSectionModal({ section, onClose }: { section: Section; onClose: () 
   const [name, setName] = useState(section.name)
   const [roles, setRoles] = useState<string[]>(section.allowed_roles)
   const projectRoles = store.getProjectRoles()
-  const toggle = (r: string) => { if (r !== 'Owner') setRoles(rs => rs.includes(r) ? rs.filter(x => x !== r) : [...rs, r]) }
+  const toggle = (r: string) => setRoles(rs => rs.includes(r) ? rs.filter(x => x !== r) : [...rs, r])
   const save = () => {
     store.updateSection(section.id, { name: name.trim() || section.name, allowed_roles: roles })
     onClose()
@@ -1293,11 +1293,11 @@ function EditSectionModal({ section, onClose }: { section: Section; onClose: () 
       <p style={{ fontSize: 12, color: theme.text.muted, marginBottom: 10 }}>Select roles that can edit tasks in this section.</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {projectRoles.map(r => (
-          <label key={r.id} onClick={() => toggle(r.name)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: theme.radius.sm, backgroundColor: roles.includes(r.name) ? theme.accent.muted : theme.bg.surface, border: `1px solid ${roles.includes(r.name) ? theme.accent.primary : 'transparent'}`, cursor: r.name === 'Owner' ? 'default' : 'pointer' }}>
-            <input type="checkbox" checked={roles.includes(r.name)} onChange={() => { }} disabled={r.name === 'Owner'} style={{ accentColor: theme.accent.primary }} />
+          <label key={r.id} onClick={() => toggle(r.name)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: theme.radius.sm, backgroundColor: roles.includes(r.name) ? theme.accent.muted : theme.bg.surface, border: `1px solid ${roles.includes(r.name) ? theme.accent.primary : 'transparent'}`, cursor: 'pointer' }}>
+            <input type="checkbox" checked={roles.includes(r.name)} onChange={() => { }} style={{ accentColor: theme.accent.primary }} />
             <div style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: r.color }} />
             <span style={{ flex: 1, fontSize: 13 }}>{r.name}</span>
-            {r.name === 'Owner' && <span style={{ fontSize: 10, color: theme.text.faint }}>Always</span>}
+
           </label>
         ))}
       </div>
@@ -1423,7 +1423,7 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
                       </div>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <button onClick={(e) => { e.stopPropagation(); store.canCurrentUserEditRoles() && !creator && setEditing(m.user_id) }} style={{ fontSize: 11, fontWeight: 500, color: theme.accent.primary, backgroundColor: theme.accent.muted, padding: '5px 10px', borderRadius: 6, border: 'none', cursor: store.canCurrentUserEditRoles() && !creator ? 'pointer' : 'default' }}>{m.role_titles.join(', ')}</button>
+                        <button onClick={(e) => { e.stopPropagation(); store.canCurrentUserEditRoles() && !creator && setEditing(m.user_id) }} style={{ fontSize: 11, fontWeight: 500, color: m.role_titles.length > 0 ? theme.accent.primary : theme.text.faint, backgroundColor: m.role_titles.length > 0 ? theme.accent.muted : theme.bg.surface, padding: '5px 10px', borderRadius: 6, border: 'none', cursor: store.canCurrentUserEditRoles() && !creator ? 'pointer' : 'default' }}>{m.role_titles.length > 0 ? m.role_titles.join(', ') : 'No roles'}</button>
                         {/* Remove member button - needs can_delete_member permission, can't remove creator */}
                         {store.canCurrentUserDeleteMember() && !creator && (
                           <button onClick={(e) => { e.stopPropagation(); removeMember(m.user_id, m.user.full_name) }} style={{ background: 'none', border: 'none', color: theme.status.high.text, cursor: 'pointer', padding: 4, opacity: 0.7, fontSize: 12 }} title="Remove from team">
@@ -1482,15 +1482,9 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
                         <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', backgroundColor: theme.bg.surface, borderRadius: theme.radius.sm }}>
                           <div style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: r.color }} />
                           <span style={{ flex: 1, fontSize: 12 }}>{r.name}</span>
-                          {r.name === 'Owner' ? (
-                            <span style={{ fontSize: 9, color: theme.accent.primary, backgroundColor: theme.accent.muted, padding: '2px 6px', borderRadius: 4 }}>Admin</span>
-                          ) : (
-                            <>
-                              <span style={{ fontSize: 9, color: r.permissions.is_admin ? theme.accent.primary : theme.text.faint, backgroundColor: r.permissions.is_admin ? theme.accent.muted : 'transparent', padding: '2px 6px', borderRadius: 4 }}>{permCount}</span>
-                              <button onClick={() => setEditingRole(r)} style={{ background: 'none', border: 'none', color: theme.text.faint, cursor: 'pointer', fontSize: 10, padding: 2 }} title="Edit permissions">{Icon.settings}</button>
-                              <button onClick={() => deleteRole(r.id, r.name, r.name)} style={{ background: 'none', border: 'none', color: theme.text.faint, cursor: 'pointer', fontSize: 10, padding: 2 }} title="Delete role">×</button>
-                            </>
-                          )}
+                          <span style={{ fontSize: 9, color: r.permissions.is_admin ? theme.accent.primary : theme.text.faint, backgroundColor: r.permissions.is_admin ? theme.accent.muted : 'transparent', padding: '2px 6px', borderRadius: 4 }}>{permCount}</span>
+                          <button onClick={() => setEditingRole(r)} style={{ background: 'none', border: 'none', color: theme.text.faint, cursor: 'pointer', fontSize: 10, padding: 2 }} title="Edit permissions">{Icon.settings}</button>
+                          <button onClick={() => deleteRole(r.id, r.name, r.name)} style={{ background: 'none', border: 'none', color: theme.text.faint, cursor: 'pointer', fontSize: 10, padding: 2 }} title="Delete role">×</button>
                         </div>
                       )
                     })}

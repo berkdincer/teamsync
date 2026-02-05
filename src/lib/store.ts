@@ -637,7 +637,7 @@ class Store {
 
   updateRolePermissions(roleId: string, permissions: Partial<RolePermissions>) {
     const idx = projectRoles.findIndex(r => r.id === roleId)
-    if (idx !== -1 && projectRoles[idx].name !== 'Owner') {
+    if (idx !== -1) {
       // If setting is_admin to true, enable all permissions
       if (permissions.is_admin) {
         projectRoles[idx].permissions = { ...ADMIN_PERMISSIONS }
@@ -738,7 +738,7 @@ class Store {
     const idx = projectRoles.findIndex(r => r.id === roleId)
     if (idx === -1) return
     const role = projectRoles[idx]
-    if (role.name === 'Owner') return // Can't delete Owner role
+    // All roles can be deleted now (no special Owner role)
 
     const deletedRoleName = role.name
     const projectId = role.project_id
@@ -751,10 +751,7 @@ class Store {
         const idx = m.role_titles.indexOf(deletedRoleName)
         if (idx !== -1) {
           m.role_titles.splice(idx, 1)
-          // If no roles left, assign 'Member'
-          if (m.role_titles.length === 0) {
-            m.role_titles.push('Member')
-          }
+          // Empty role list is now valid - no fallback needed
         }
       }
     })
@@ -806,18 +803,19 @@ class Store {
     const section = sections.find(s => s.id === sectionId)
     if (!section) return false
 
-    const userRoles = this.getCurrentUserRoleNames()
-    if (userRoles.includes('Owner')) return true // Owner can always edit
+    // Project creator can always edit
+    const project = projects.find(p => p.id === this.currentProjectId)
+    if (project?.created_by === currentUserId) return true
 
+    const userRoles = this.getCurrentUserRoleNames()
     return userRoles.some(role => section.allowed_roles.includes(role))
   }
 
   getSectionAllowedRolesText(sectionId: string): string {
     const section = sections.find(s => s.id === sectionId)
     if (!section) return ''
-    const roles = section.allowed_roles.filter(r => r !== 'Owner')
-    if (roles.length === 0) return 'Only Owner'
-    return roles.join(', ')
+    if (section.allowed_roles.length === 0) return 'Only Creator'
+    return section.allowed_roles.join(', ')
   }
 
   // ============ PROJECTS ============
@@ -864,13 +862,10 @@ class Store {
     }
     projects.push(project)
 
-    const ownerRole: ProjectRole = { id: generateId(), project_id: projectId, name: 'Owner', color: '#f59e0b', permissions: ADMIN_PERMISSIONS, created_at: new Date().toISOString() }
-    const memberRole: ProjectRole = { id: generateId(), project_id: projectId, name: 'Member', color: '#6b7280', permissions: DEFAULT_PERMISSIONS, created_at: new Date().toISOString() }
+    // No default roles - roles are added via "Add Role" feature
+    // Project creator gets admin permissions via created_by check, not via a role
 
-    projectRoles.push(ownerRole)
-    projectRoles.push(memberRole)
-
-    members.push({ project_id: project.id, user_id: currentUserId!, role_titles: ['Owner'], joined_at: new Date().toISOString() })
+    members.push({ project_id: project.id, user_id: currentUserId!, role_titles: [], joined_at: new Date().toISOString() })
     this.currentProjectId = project.id
     this.notify()
 
@@ -882,20 +877,15 @@ class Store {
       } else {
         console.log('[Supabase] Project created successfully:', data)
         // 2. Create Default Roles
-        supabase.from('project_roles').insert([ownerRole, memberRole]).then(({ error: roleError }) => {
-          if (roleError) console.error('[Supabase] Create roles failed:', roleError.message, roleError)
-          else {
-            // 3. Add Creator as Member
-            supabase.from('project_members').insert({
-              project_id: project.id,
-              user_id: currentUserId!,
-              role_titles: ['Owner'],
-              joined_at: new Date().toISOString()
-            }).then(({ error: memError }) => {
-              if (memError) console.error('[Supabase] Add creator member failed:', memError.message, memError)
-              else console.log('[Supabase] Member added successfully')
-            })
-          }
+        // Add Creator as Member (no default roles)
+        supabase.from('project_members').insert({
+          project_id: project.id,
+          user_id: currentUserId!,
+          role_titles: [],
+          joined_at: new Date().toISOString()
+        }).then(({ error: memError }) => {
+          if (memError) console.error('[Supabase] Add creator member failed:', memError.message, memError)
+          else console.log('[Supabase] Member added successfully')
         })
       }
     })
@@ -909,14 +899,14 @@ class Store {
     const existing = members.find(m => m.project_id === project.id && m.user_id === currentUserId)
     if (existing) return true
 
-    members.push({ project_id: project.id, user_id: currentUserId, role_titles: ['Member'], joined_at: new Date().toISOString() })
+    members.push({ project_id: project.id, user_id: currentUserId, role_titles: [], joined_at: new Date().toISOString() })
     this.notify()
 
     // Supabase
     supabase.from('project_members').insert({
       project_id: project.id,
       user_id: currentUserId,
-      role_titles: ['Member'],
+      role_titles: [],
       joined_at: new Date().toISOString()
     }).then(({ error }) => {
       if (error) console.error('Join project failed', error)
@@ -1064,11 +1054,7 @@ class Store {
     const idx = members.findIndex(m => m.project_id === this.currentProjectId && m.user_id === userId)
     if (idx === -1) return
 
-    const project = projects.find(p => p.id === this.currentProjectId)
-    // Owner role cannot be removed from the creator
-    if (project && project.created_by === userId && roleTitle === 'Owner') {
-      return
-    }
+    // No special role protection needed - creator's admin rights come from created_by, not roles
 
     const roleIdx = members[idx].role_titles.indexOf(roleTitle)
     if (roleIdx === -1) {
@@ -1093,15 +1079,9 @@ class Store {
     const idx = members.findIndex(m => m.project_id === this.currentProjectId && m.user_id === userId)
     if (idx === -1) return
 
-    const project = projects.find(p => p.id === this.currentProjectId)
-    // Owner must keep Owner role
-    if (project && project.created_by === userId) {
-      if (!roleTitles.includes('Owner')) {
-        roleTitles.unshift('Owner')
-      }
-    }
+    // No special role enforcement - creator's admin rights come from created_by, not roles
 
-    members[idx].role_titles = roleTitles.length > 0 ? roleTitles : ['Member']
+    members[idx].role_titles = roleTitles
     this.notify()
 
     // Supabase
@@ -1174,7 +1154,7 @@ class Store {
       name,
       color,
       order: existingSections.length,
-      allowed_roles: allowedRoles.length > 0 ? allowedRoles : ['Owner'],
+      allowed_roles: allowedRoles, // Can be empty - creator can always edit anyway
       created_at: new Date().toISOString(),
     }
     sections.push(section)
