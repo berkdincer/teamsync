@@ -18,6 +18,8 @@ export interface ExtendedTask extends Task {
   section_id: string
   deadline: string | null
   assigned_to_list: string[] // Multiple assignees support
+  working_on_by: string[] // User IDs of people currently working on this task
+  working_on_started: string | null // Timestamp when work started
 }
 
 export interface ExtendedUser extends User {
@@ -78,12 +80,8 @@ let currentUserId: string | null = null
 let isDarkMode = true
 
 // Demo data
-const users: ExtendedUser[] = [
-  { id: 'user-1', email: 'berk@teamsync.io', full_name: 'Berk', surname: 'Yilmaz', username: 'berkyilmaz', avatar_url: null, created_at: new Date().toISOString(), streak: 15, last_active: new Date().toISOString() },
-  { id: 'user-2', email: 'can@teamsync.io', full_name: 'Can', surname: 'Ozturk', username: 'canozturk', avatar_url: null, created_at: new Date().toISOString(), streak: 8, last_active: new Date().toISOString() },
-  { id: 'user-3', email: 'john@teamsync.io', full_name: 'John', surname: 'Smith', username: 'johnsmith', avatar_url: null, created_at: new Date().toISOString(), streak: 3, last_active: new Date(Date.now() - 86400000 * 2).toISOString() },
-  { id: 'user-4', email: 'sarah@teamsync.io', full_name: 'Sarah', surname: 'Wilson', username: 'sarahwilson', avatar_url: null, created_at: new Date().toISOString(), streak: 21, last_active: new Date().toISOString() },
-]
+// Demo data
+const users: ExtendedUser[] = []
 
 // Default roles that can be used as templates
 export const DEFAULT_ROLE_TEMPLATES = [
@@ -99,72 +97,21 @@ export const DEFAULT_ROLE_TEMPLATES = [
 ]
 
 // Project-specific roles
-const projectRoles: ProjectRole[] = [
-  { id: 'role-1', project_id: 'project-1', name: 'Owner', color: '#f59e0b', permissions: ADMIN_PERMISSIONS, created_at: new Date().toISOString() },
-  { id: 'role-2', project_id: 'project-1', name: 'Frontend Developer', color: '#10b981', permissions: { ...DEFAULT_PERMISSIONS, can_add_section: true }, created_at: new Date().toISOString() },
-  { id: 'role-3', project_id: 'project-1', name: 'Backend Developer', color: '#3b82f6', permissions: { ...DEFAULT_PERMISSIONS, can_add_section: true }, created_at: new Date().toISOString() },
-  { id: 'role-4', project_id: 'project-1', name: 'Full Stack Developer', color: '#8b5cf6', permissions: { ...DEFAULT_PERMISSIONS, can_add_section: true, can_invite: true }, created_at: new Date().toISOString() },
-  { id: 'role-5', project_id: 'project-1', name: 'UI Designer', color: '#ec4899', permissions: DEFAULT_PERMISSIONS, created_at: new Date().toISOString() },
-  { id: 'role-6', project_id: 'project-1', name: 'DevOps Engineer', color: '#06b6d4', permissions: { ...DEFAULT_PERMISSIONS, can_delete_task: true }, created_at: new Date().toISOString() },
-  { id: 'role-7', project_id: 'project-2', name: 'Owner', color: '#f59e0b', permissions: ADMIN_PERMISSIONS, created_at: new Date().toISOString() },
-  { id: 'role-8', project_id: 'project-2', name: 'UI Designer', color: '#ec4899', permissions: DEFAULT_PERMISSIONS, created_at: new Date().toISOString() },
-  { id: 'role-9', project_id: 'project-2', name: 'Developer', color: '#3b82f6', permissions: DEFAULT_PERMISSIONS, created_at: new Date().toISOString() },
-  { id: 'role-10', project_id: 'project-3', name: 'Owner', color: '#f59e0b', permissions: ADMIN_PERMISSIONS, created_at: new Date().toISOString() },
-  { id: 'role-11', project_id: 'project-3', name: 'ML Engineer', color: '#ef4444', permissions: DEFAULT_PERMISSIONS, created_at: new Date().toISOString() },
-]
+// Project-specific roles
+const projectRoles: ProjectRole[] = []
 
-const projects: Project[] = [
-  { id: 'project-1', name: 'E-Commerce Platform', invite_code: 'ecom1', created_by: 'user-1', created_at: new Date().toISOString() },
-  { id: 'project-2', name: 'Mobile App Redesign', invite_code: 'mobi2', created_by: 'user-2', created_at: new Date().toISOString() },
-  { id: 'project-3', name: 'AI Chatbot', invite_code: 'aich3', created_by: 'user-1', created_at: new Date().toISOString() },
-]
-
-const members: ProjectMember[] = [
-  { project_id: 'project-1', user_id: 'user-1', role_titles: ['Owner'], joined_at: new Date().toISOString() },
-  { project_id: 'project-1', user_id: 'user-2', role_titles: ['Frontend Developer', 'UI Designer'], joined_at: new Date().toISOString() },
-  { project_id: 'project-1', user_id: 'user-3', role_titles: ['Backend Developer'], joined_at: new Date().toISOString() },
-  { project_id: 'project-2', user_id: 'user-2', role_titles: ['Owner'], joined_at: new Date().toISOString() },
-  { project_id: 'project-2', user_id: 'user-1', role_titles: ['UI Designer', 'Developer'], joined_at: new Date().toISOString() },
-  { project_id: 'project-3', user_id: 'user-1', role_titles: ['Owner'], joined_at: new Date().toISOString() },
-  { project_id: 'project-3', user_id: 'user-4', role_titles: ['ML Engineer'], joined_at: new Date().toISOString() },
-]
-
-const sections: Section[] = [
-  { id: 'sec-1', project_id: 'project-1', name: 'Backend', color: '#3b82f6', order: 0, allowed_roles: ['Owner', 'Backend Developer', 'Full Stack Developer'], created_at: new Date().toISOString() },
-  { id: 'sec-2', project_id: 'project-1', name: 'Frontend', color: '#10b981', order: 1, allowed_roles: ['Owner', 'Frontend Developer', 'Full Stack Developer', 'UI Designer'], created_at: new Date().toISOString() },
-  { id: 'sec-3', project_id: 'project-1', name: 'DevOps', color: '#f59e0b', order: 2, allowed_roles: ['Owner', 'DevOps Engineer'], created_at: new Date().toISOString() },
-  { id: 'sec-4', project_id: 'project-2', name: 'Design', color: '#ec4899', order: 0, allowed_roles: ['Owner', 'UI Designer'], created_at: new Date().toISOString() },
-  { id: 'sec-5', project_id: 'project-2', name: 'Development', color: '#8b5cf6', order: 1, allowed_roles: ['Owner', 'Developer'], created_at: new Date().toISOString() },
-  { id: 'sec-6', project_id: 'project-3', name: 'Research', color: '#06b6d4', order: 0, allowed_roles: ['Owner', 'ML Engineer'], created_at: new Date().toISOString() },
-  { id: 'sec-7', project_id: 'project-3', name: 'Training', color: '#ef4444', order: 1, allowed_roles: ['Owner', 'ML Engineer'], created_at: new Date().toISOString() },
-]
-
-const tasks: ExtendedTask[] = [
-  { id: 'task-1', project_id: 'project-1', section_id: 'sec-1', title: 'Setup PostgreSQL database', description: 'Initialize the database with proper schemas', status: 'DONE', priority: 'HIGH', due_date: null, deadline: '2026-02-10', assigned_to: 'user-3', assigned_to_list: ['user-3'], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'task-2', project_id: 'project-1', section_id: 'sec-1', title: 'Create REST API endpoints', description: 'Build CRUD endpoints for products', status: 'ACTIVE', priority: 'HIGH', due_date: new Date(Date.now() + 86400000 * 3).toISOString(), deadline: '2026-02-15', assigned_to: 'user-3', assigned_to_list: ['user-3', 'user-1'], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'task-3', project_id: 'project-1', section_id: 'sec-1', title: 'Implement authentication', description: 'JWT-based auth system', status: 'ACTIVE', priority: 'MEDIUM', due_date: null, deadline: '2026-02-20', assigned_to: 'user-3', assigned_to_list: ['user-3'], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'task-4', project_id: 'project-1', section_id: 'sec-2', title: 'Build product listing page', description: null, status: 'ACTIVE', priority: 'HIGH', due_date: new Date(Date.now() + 86400000 * 5).toISOString(), deadline: '2026-02-18', assigned_to: 'user-2', assigned_to_list: ['user-2'], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'task-5', project_id: 'project-1', section_id: 'sec-2', title: 'Shopping cart UI', description: 'Implement cart with animations', status: 'ACTIVE', priority: 'MEDIUM', due_date: null, deadline: null, assigned_to: 'user-2', assigned_to_list: ['user-2', 'user-1'], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'task-6', project_id: 'project-1', section_id: 'sec-3', title: 'Setup CI/CD pipeline', description: null, status: 'DONE', priority: 'LOW', due_date: null, deadline: '2026-02-05', assigned_to: 'user-1', assigned_to_list: ['user-1'], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'task-7', project_id: 'project-2', section_id: 'sec-4', title: 'Create design system', description: null, status: 'ACTIVE', priority: 'HIGH', due_date: null, deadline: '2026-02-25', assigned_to: 'user-1', assigned_to_list: ['user-1'], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'task-8', project_id: 'project-3', section_id: 'sec-6', title: 'Research LLM models', description: null, status: 'DONE', priority: 'HIGH', due_date: null, deadline: null, assigned_to: 'user-4', assigned_to_list: ['user-4'], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-]
-
-// Mock comments for tasks
-const taskComments: TaskComment[] = [
-  { id: 'comment-1', task_id: 'task-2', user_id: 'user-1', user_name: 'Berk', text: 'I started working on this. Will update soon.', timestamp: new Date(Date.now() - 3600000).toISOString() },
-  { id: 'comment-2', task_id: 'task-2', user_id: 'user-3', user_name: 'John', text: 'Okay, let me know if you need any help with the database schemas.', timestamp: new Date(Date.now() - 1800000).toISOString() },
-  { id: 'comment-3', task_id: 'task-2', user_id: 'user-1', user_name: 'Berk', text: 'Thanks! I might need help with the authentication endpoints.', timestamp: new Date(Date.now() - 900000).toISOString() },
-  { id: 'comment-4', task_id: 'task-4', user_id: 'user-2', user_name: 'Can', text: 'Design mockups are ready. Starting implementation now.', timestamp: new Date(Date.now() - 7200000).toISOString() },
-  { id: 'comment-5', task_id: 'task-4', user_id: 'user-1', user_name: 'Berk', text: 'Great! The API will be ready by tomorrow.', timestamp: new Date(Date.now() - 3600000).toISOString() },
-]
+const projects: Project[] = []
+const members: ProjectMember[] = []
+const sections: Section[] = []
+const tasks: ExtendedTask[] = []
+const taskComments: TaskComment[] = []
 
 // Role colors for new roles
 const ROLE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#14b8a6']
 
 class Store {
   private listeners: Set<() => void> = new Set()
-  private currentProjectId: string | null = 'project-1'
+  private currentProjectId: string | null = null
 
   subscribe(callback: () => void) {
     this.listeners.add(callback)
@@ -248,17 +195,24 @@ class Store {
     const user = users[userIdx]
     const lastActive = new Date(user.last_active)
     const now = new Date()
+
+    // Reset times to midnight for accurate day comparison
+    lastActive.setHours(0, 0, 0, 0)
+    now.setHours(0, 0, 0, 0)
+
     const diffDays = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24))
 
     if (diffDays === 0) {
-      // Same day
+      // Same day - no change
     } else if (diffDays === 1) {
+      // Consecutive day - increment streak
       users[userIdx].streak += 1
     } else {
-      users[userIdx].streak = 1
+      // Missed days - reset streak to 0
+      users[userIdx].streak = 0
     }
-    
-    users[userIdx].last_active = now.toISOString()
+
+    users[userIdx].last_active = new Date().toISOString()
   }
 
   isUserOnline(userId: string): boolean {
@@ -337,7 +291,7 @@ class Store {
     const project = projects.find(p => p.id === this.currentProjectId)
     // Owner always has all permissions
     if (project?.created_by === currentUserId) return true
-    
+
     const role = this.getCurrentUserRole()
     if (!role) return false
     // Admin has all permissions
@@ -375,11 +329,11 @@ class Store {
     if (!query.trim() || !this.currentProjectId) return []
     const q = query.toLowerCase()
     const projectSections = sections.filter(s => s.project_id === this.currentProjectId)
-    
+
     return tasks
       .filter(t => t.project_id === this.currentProjectId)
-      .filter(t => 
-        t.title.toLowerCase().includes(q) || 
+      .filter(t =>
+        t.title.toLowerCase().includes(q) ||
         t.description?.toLowerCase().includes(q) ||
         (t.assigned_to_list || []).some(userId => {
           const user = users.find(u => u.id === userId)
@@ -405,12 +359,12 @@ class Store {
     if (idx === -1) return
     const role = projectRoles[idx]
     if (role.name === 'Owner') return // Can't delete Owner role
-    
+
     const deletedRoleName = role.name
     const projectId = role.project_id
-    
+
     projectRoles.splice(idx, 1)
-    
+
     // Remove deleted role from members
     members.forEach(m => {
       if (m.project_id === projectId) {
@@ -424,14 +378,14 @@ class Store {
         }
       }
     })
-    
+
     // Remove deleted role from section allowed_roles
     sections.forEach(s => {
       if (s.project_id === projectId && s.allowed_roles.includes(deletedRoleName)) {
         s.allowed_roles = s.allowed_roles.filter(r => r !== deletedRoleName)
       }
     })
-    
+
     this.notify()
   }
 
@@ -445,10 +399,10 @@ class Store {
   canEditSection(sectionId: string): boolean {
     const section = sections.find(s => s.id === sectionId)
     if (!section) return false
-    
+
     const userRoles = this.getCurrentUserRoleNames()
     if (userRoles.includes('Owner')) return true // Owner can always edit
-    
+
     return userRoles.some(role => section.allowed_roles.includes(role))
   }
 
@@ -503,10 +457,10 @@ class Store {
       created_at: new Date().toISOString(),
     }
     projects.push(project)
-    
+
     projectRoles.push({ id: generateId(), project_id: projectId, name: 'Owner', color: '#f59e0b', permissions: ADMIN_PERMISSIONS, created_at: new Date().toISOString() })
     projectRoles.push({ id: generateId(), project_id: projectId, name: 'Member', color: '#6b7280', permissions: DEFAULT_PERMISSIONS, created_at: new Date().toISOString() })
-    
+
     members.push({ project_id: project.id, user_id: currentUserId!, role_titles: ['Owner'], joined_at: new Date().toISOString() })
     this.currentProjectId = project.id
     this.notify()
@@ -526,10 +480,10 @@ class Store {
   deleteProject(projectId: string): boolean {
     const project = projects.find(p => p.id === projectId)
     if (!project) return false
-    
+
     // Only the creator/owner can delete the project
     if (project.created_by !== currentUserId) return false
-    
+
     // Delete all tasks in this project
     for (let i = tasks.length - 1; i >= 0; i--) {
       if (tasks[i].project_id === projectId) {
@@ -542,59 +496,59 @@ class Store {
         tasks.splice(i, 1)
       }
     }
-    
+
     // Delete all sections in this project
     for (let i = sections.length - 1; i >= 0; i--) {
       if (sections[i].project_id === projectId) {
         sections.splice(i, 1)
       }
     }
-    
+
     // Delete all members from this project
     for (let i = members.length - 1; i >= 0; i--) {
       if (members[i].project_id === projectId) {
         members.splice(i, 1)
       }
     }
-    
+
     // Delete all roles for this project
     for (let i = projectRoles.length - 1; i >= 0; i--) {
       if (projectRoles[i].project_id === projectId) {
         projectRoles.splice(i, 1)
       }
     }
-    
+
     // Delete the project itself
     const projectIdx = projects.findIndex(p => p.id === projectId)
     if (projectIdx !== -1) {
       projects.splice(projectIdx, 1)
     }
-    
+
     // If this was the current project, switch to another one or null
     if (this.currentProjectId === projectId) {
       const myProjects = this.getMyProjects()
       this.currentProjectId = myProjects.length > 0 ? myProjects[0].id : null
     }
-    
+
     this.notify()
     return true
   }
 
   leaveProject(projectId: string): boolean {
     if (!currentUserId) return false
-    
+
     const project = projects.find(p => p.id === projectId)
     if (!project) return false
-    
+
     // Owners cannot leave - they must delete the project
     if (project.created_by === currentUserId) return false
-    
+
     // Remove the current user from project members
     const memberIdx = members.findIndex(m => m.project_id === projectId && m.user_id === currentUserId)
     if (memberIdx !== -1) {
       members.splice(memberIdx, 1)
     }
-    
+
     // Unassign the user from all tasks in this project
     const userId = currentUserId!
     tasks.forEach(task => {
@@ -605,13 +559,13 @@ class Store {
         }
       }
     })
-    
+
     // If this was the current project, switch to another one
     if (this.currentProjectId === projectId) {
       const myProjects = this.getMyProjects()
       this.currentProjectId = myProjects.length > 0 ? myProjects[0].id : null
     }
-    
+
     this.notify()
     return true
   }
@@ -640,13 +594,13 @@ class Store {
   toggleMemberRole(userId: string, roleTitle: string) {
     const idx = members.findIndex(m => m.project_id === this.currentProjectId && m.user_id === userId)
     if (idx === -1) return
-    
+
     const project = projects.find(p => p.id === this.currentProjectId)
     // Owner role cannot be removed from the creator
     if (project && project.created_by === userId && roleTitle === 'Owner') {
       return
     }
-    
+
     const roleIdx = members[idx].role_titles.indexOf(roleTitle)
     if (roleIdx === -1) {
       // Add role
@@ -664,7 +618,7 @@ class Store {
   setMemberRoles(userId: string, roleTitles: string[]) {
     const idx = members.findIndex(m => m.project_id === this.currentProjectId && m.user_id === userId)
     if (idx === -1) return
-    
+
     const project = projects.find(p => p.id === this.currentProjectId)
     // Owner must keep Owner role
     if (project && project.created_by === userId) {
@@ -672,7 +626,7 @@ class Store {
         roleTitles.unshift('Owner')
       }
     }
-    
+
     members[idx].role_titles = roleTitles.length > 0 ? roleTitles : ['Member']
     this.notify()
   }
@@ -686,11 +640,11 @@ class Store {
     const project = projects.find(p => p.id === this.currentProjectId)
     if (!project) return
     if (project.created_by === userId) return
-    
+
     const idx = members.findIndex(m => m.project_id === this.currentProjectId && m.user_id === userId)
     if (idx !== -1) {
       members.splice(idx, 1)
-      
+
       // Remove user from all task assignments in this project
       tasks.forEach(task => {
         if (task.project_id === this.currentProjectId) {
@@ -704,7 +658,7 @@ class Store {
           }
         }
       })
-      
+
       this.notify()
     }
   }
@@ -777,6 +731,10 @@ class Store {
     return taskComments.filter(c => c.task_id === taskId).length
   }
 
+  getTask(taskId: string): ExtendedTask | undefined {
+    return tasks.find(t => t.id === taskId)
+  }
+
   createTask(sectionId: string, data: { title: string; description?: string; status: TaskStatus; priority: Priority; assigned_to_list?: string[]; deadline?: string | null }): ExtendedTask {
     const section = sections.find(s => s.id === sectionId)
     const task: ExtendedTask = {
@@ -791,6 +749,8 @@ class Store {
       deadline: data.deadline || null,
       assigned_to: data.assigned_to_list?.[0] || null,
       assigned_to_list: data.assigned_to_list || [],
+      working_on_by: [],
+      working_on_started: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
@@ -830,6 +790,123 @@ class Store {
     }
   }
 
+  // ============ WORKING ON TASK ============
+  // Check if current user can work on a task (must be assigned and have edit rights for the section)
+  canWorkOnTask(taskId: string): boolean {
+    if (!currentUserId) return false
+    const task = tasks.find(t => t.id === taskId)
+    if (!task) return false
+
+    // Must be assigned to the task
+    const isAssigned = task.assigned_to_list.includes(currentUserId)
+    if (!isAssigned) return false
+
+    // Must have permission to edit the section
+    return this.canEditSection(task.section_id)
+  }
+
+  startWorkingOn(taskId: string): boolean {
+    if (!currentUserId) return false
+    if (!this.canWorkOnTask(taskId)) return false
+
+    const idx = tasks.findIndex(t => t.id === taskId)
+    if (idx === -1) return false
+
+    // Can't work on completed or failed tasks
+    if (tasks[idx].status === 'DONE' || tasks[idx].status === 'FAILED') return false
+
+    // Already working on this task
+    if (tasks[idx].working_on_by.includes(currentUserId!)) return true
+
+    // Multiple permitted users CAN work on the same task
+    // User CAN work on multiple tasks at once (requested feature)
+
+    // Add user to working list (multiple users allowed)
+    tasks[idx].working_on_by = [...tasks[idx].working_on_by, currentUserId!]
+    if (!tasks[idx].working_on_started) {
+      tasks[idx].working_on_started = new Date().toISOString()
+    }
+    tasks[idx].updated_at = new Date().toISOString()
+    this.notify()
+    return true
+  }
+
+  stopWorkingOn(taskId: string): boolean {
+    if (!currentUserId) return false
+
+    const idx = tasks.findIndex(t => t.id === taskId)
+    if (idx === -1) return false
+
+    // Only remove if user is in the working list
+    if (!tasks[idx].working_on_by.includes(currentUserId)) return false
+
+    tasks[idx].working_on_by = tasks[idx].working_on_by.filter(id => id !== currentUserId)
+    if (tasks[idx].working_on_by.length === 0) {
+      tasks[idx].working_on_started = null
+    }
+    tasks[idx].updated_at = new Date().toISOString()
+    this.notify()
+    return true
+  }
+
+  // Get all users working on a task
+  getWorkingOnUsers(taskId: string): ExtendedUser[] {
+    const task = tasks.find(t => t.id === taskId)
+    if (!task || task.working_on_by.length === 0) return []
+    return task.working_on_by.map(id => users.find(u => u.id === id)).filter(Boolean) as ExtendedUser[]
+  }
+
+  isCurrentUserWorkingOn(taskId: string): boolean {
+    if (!currentUserId) return false
+    const task = tasks.find(t => t.id === taskId)
+    return task?.working_on_by.includes(currentUserId) || false
+  }
+
+  // Get the tasks a user is currently working on
+  getUserWorkingOnTasks(userId: string): { task: ExtendedTask; sectionName: string; projectName: string }[] {
+    const projId = this.currentProjectId
+    if (!projId) return []
+    const projectTasks = tasks.filter(t => t.project_id === projId && t.working_on_by.includes(userId) && t.status !== 'DONE')
+
+    return projectTasks.map(task => {
+      const section = sections.find(s => s.id === task.section_id)
+      const project = projects.find(p => p.id === task.project_id)
+      return { task, sectionName: section?.name || '', projectName: project?.name || '' }
+    })
+  }
+
+  // Deprecated single version (kept for compatibility if needed, but redirects to array 0)
+  getUserWorkingOnTask(userId: string) {
+    const tasks = this.getUserWorkingOnTasks(userId)
+    return tasks.length > 0 ? tasks[0] : null
+  }
+
+  // Get overdue tasks (deadline passed but not completed)
+  getOverdueTasks(): (ExtendedTask & { assignees: (ExtendedUser & { role_titles: string[] })[] })[] {
+    const projId = this.currentProjectId
+    if (!projId) return []
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+
+    return tasks
+      .filter(t =>
+        t.project_id === projId &&
+        t.status !== 'DONE' &&
+        t.deadline &&
+        new Date(t.deadline) < now
+      )
+      .map(t => {
+        const membersList = this.getProjectMembers()
+        const assignees = t.assigned_to_list
+          .map(userId => {
+            const m = membersList.find(mem => mem.user_id === userId)
+            return m ? { ...m.user, role_titles: m.role_titles } : null
+          })
+          .filter(Boolean) as (ExtendedUser & { role_titles: string[] })[]
+        return { ...t, assignees }
+      })
+  }
+
   // ============ TASK COMMENTS ============
   getTaskComments(taskId: string): TaskComment[] {
     return taskComments.filter(c => c.task_id === taskId).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
@@ -848,6 +925,43 @@ class Store {
     taskComments.push(comment)
     this.notify()
     return comment
+  }
+
+  // ============ AUTO-FAIL EXPIRED TASKS ============
+  checkAndFailExpiredTasks(): number {
+    const projId = this.currentProjectId
+    if (!projId) return 0
+
+    const now = new Date()
+    now.setHours(23, 59, 59, 999) // End of today
+
+    let failedCount = 0
+    tasks.forEach((t, i) => {
+      if (
+        t.project_id === projId &&
+        t.status === 'ACTIVE' &&
+        t.deadline &&
+        new Date(t.deadline) < now
+      ) {
+        tasks[i].status = 'FAILED'
+        tasks[i].working_on_by = [] // Clear working users
+        tasks[i].working_on_started = null
+        tasks[i].updated_at = new Date().toISOString()
+        failedCount++
+      }
+    })
+
+    if (failedCount > 0) {
+      this.notify()
+    }
+    return failedCount
+  }
+
+  // Get failed tasks for current project
+  getFailedTasks(): ExtendedTask[] {
+    const projId = this.currentProjectId
+    if (!projId) return []
+    return tasks.filter(t => t.project_id === projId && t.status === 'FAILED')
   }
 }
 

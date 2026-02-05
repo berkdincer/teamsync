@@ -1,7 +1,7 @@
 // Database types for TeamSync
 
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH'
-export type TaskStatus = 'ACTIVE' | 'DONE'
+export type TaskStatus = 'ACTIVE' | 'DONE' | 'FAILED'
 
 export interface User {
   id: string

@@ -62,10 +62,10 @@ function Avatar({ name, size = 28, showOnline }: { name: string; size?: number; 
   const hue = name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360
   return (
     <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
-      <div style={{ 
-        width: size, height: size, borderRadius: size, 
+      <div style={{
+        width: size, height: size, borderRadius: size,
         background: `linear-gradient(135deg, hsl(${hue}, 60%, 45%), hsl(${hue + 30}, 60%, 35%))`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: 'white', fontWeight: 600, fontSize: size * 0.38, letterSpacing: '-0.02em'
       }}>
         {initials}
@@ -96,21 +96,21 @@ function AvatarGroup({ users, max = 3 }: { users: { full_name: string }[]; max?:
 
 // ============ ICONS (Minimal) ============
 const Icon = {
-  search: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>,
-  plus: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>,
-  check: <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>,
-  calendar: <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
-  message: <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
-  lock: <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  folder: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
-  users: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-  link: <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
-  logout: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
-  more: <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg>,
-  close: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>,
-  send: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4 20-7z"/><path d="m22 2-11 11"/></svg>,
-  trash: <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
-  settings: <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4m-9-9h4m14 0h-4M4.22 4.22l2.83 2.83m9.9 9.9 2.83 2.83m0-15.56-2.83 2.83m-9.9 9.9-2.83 2.83"/></svg>,
+  search: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.35-4.35" /></svg>,
+  plus: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>,
+  check: <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>,
+  calendar: <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>,
+  message: <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>,
+  lock: <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>,
+  folder: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>,
+  users: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
+  link: <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>,
+  logout: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>,
+  more: <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /><circle cx="5" cy="12" r="1.5" /></svg>,
+  close: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></svg>,
+  send: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4 20-7z" /><path d="m22 2-11 11" /></svg>,
+  trash: <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>,
+  settings: <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M12 1v4m0 14v4m-9-9h4m14 0h-4M4.22 4.22l2.83 2.83m9.9 9.9 2.83 2.83m0-15.56-2.83 2.83m-9.9 9.9-2.83 2.83" /></svg>,
 }
 
 // ============ PRIORITY PILL ============
@@ -121,6 +121,114 @@ function PriorityPill({ priority }: { priority: Priority }) {
     <span style={{ fontSize: 10, fontWeight: 500, padding: '3px 7px', borderRadius: 6, backgroundColor: config.bg, color: config.text }}>
       {label}
     </span>
+  )
+}
+
+// ============ PROFILE CARD (Unified) ============
+function ProfileCard({ member, onClose, style }: { member: { user_id: string; user: ExtendedUser; role_titles: string[]; joined_at: string }; onClose: () => void; style?: React.CSSProperties }) {
+  const isOnline = store.isUserOnline(member.user_id)
+  const activeTasks = store.getUserWorkingOnTasks(member.user_id)
+
+  const formatLastActive = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+
+  return (
+    <div style={{ backgroundColor: theme.bg.panel, borderRadius: theme.radius.lg, overflow: 'hidden', minWidth: 300, maxWidth: 340, ...style }}>
+      {/* Gradient Header */}
+      <div style={{
+        height: 60,
+        background: `linear-gradient(135deg, ${theme.accent.primary}40 0%, #1e3a5f 60%, ${theme.bg.surface} 100%)`,
+      }} />
+
+      {/* Content */}
+      <div style={{ padding: '0 20px 20px', marginTop: -30 }}>
+        {/* Avatar */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+          <div style={{ width: 60, height: 60, borderRadius: '50%', border: `3px solid ${theme.bg.panel}`, overflow: 'hidden' }}>
+            <Avatar name={`${member.user.full_name} ${member.user.surname}`} size={54} />
+          </div>
+        </div>
+
+        {/* Name & Status */}
+        <div style={{ textAlign: 'center', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 3 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0, color: theme.text.primary }}>
+              {member.user.full_name} {member.user.surname}
+            </h3>
+            <span style={{ fontSize: 11, color: '#f59e0b' }}>🔥 {member.user.streak}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <span style={{ fontSize: 11, color: theme.text.muted }}>@{member.user.username}</span>
+            {isOnline ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 9, color: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.15)', padding: '2px 5px', borderRadius: 6 }}>
+                <span style={{ width: 4, height: 4, borderRadius: 4, backgroundColor: '#22c55e' }} /> Online
+              </span>
+            ) : (
+              <span style={{ fontSize: 9, color: theme.text.faint }}>{formatLastActive(member.user.last_active)}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Roles */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12, justifyContent: 'center' }}>
+          {member.role_titles.map(role => (
+            <span key={role} style={{ fontSize: 9, fontWeight: 500, color: theme.accent.primary, backgroundColor: theme.accent.muted, padding: '3px 8px', borderRadius: 10 }}>{role}</span>
+          ))}
+        </div>
+
+        {/* Info Section */}
+        <div style={{ fontSize: 11, marginBottom: 12, padding: '10px 12px', backgroundColor: theme.bg.surface, borderRadius: theme.radius.sm }}>
+          <div style={{ display: 'flex', marginBottom: 6 }}>
+            <span style={{ color: theme.text.muted, width: 50 }}>Email:</span>
+            <span style={{ color: theme.text.primary, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.user.email}</span>
+          </div>
+          <div style={{ display: 'flex' }}>
+            <span style={{ color: theme.text.muted, width: 50 }}>Joined:</span>
+            <span style={{ color: theme.text.primary }}>{new Date(member.joined_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
+        </div>
+
+        {/* Active Tasks */}
+        {activeTasks.length > 0 && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 10px', marginBottom: 12,
+            backgroundColor: theme.accent.muted, borderRadius: theme.radius.sm, border: `1px solid ${theme.accent.primary}30`
+          }}>
+            <div style={{ fontSize: 10, color: theme.text.muted, marginBottom: 2 }}>Working on:</div>
+            {activeTasks.map((at, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: theme.accent.primary, boxShadow: `0 0 4px ${theme.accent.primary}`, flexShrink: 0 }} />
+                <div style={{ fontSize: 10, lineHeight: 1.3, overflow: 'hidden' }}>
+                  <span style={{ color: theme.text.primary, fontWeight: 500 }}>{at.task.title}</span>
+                  <span style={{ color: theme.text.faint }}> | </span>
+                  <span style={{ color: theme.accent.hover }}>{at.projectName}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Close Button */}
+        <button onClick={onClose} style={{
+          width: '100%', padding: '8px', backgroundColor: theme.bg.surface,
+          border: `1px solid ${theme.border.default}`, borderRadius: theme.radius.sm,
+          color: theme.text.primary, cursor: 'pointer', fontSize: 11, fontWeight: 500,
+        }}>
+          Close
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -146,9 +254,9 @@ function LoginPage({ onSwitch }: { onSwitch: () => void }) {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: theme.bg.base, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', -apple-system, sans-serif" }}>
-      <div style={{ width: 360, padding: 40 }}>
+      <div style={{ width: 420, padding: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 48 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${theme.accent.primary}, #818cf8)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, color: 'white' }}>T</div>
+          <img src="/teamsync.png" alt="TeamSync" style={{ height: 40, width: 'auto' }} />
           <span style={{ fontSize: 18, fontWeight: 600, color: theme.text.primary, letterSpacing: '-0.02em' }}>TeamSync</span>
         </div>
         <h1 style={{ fontSize: 28, fontWeight: 600, color: theme.text.primary, marginBottom: 8, letterSpacing: '-0.03em' }}>Welcome back</h1>
@@ -179,9 +287,9 @@ function RegisterPage({ onSwitch }: { onSwitch: () => void }) {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: theme.bg.base, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', -apple-system, sans-serif" }}>
-      <div style={{ width: 360, padding: 40 }}>
+      <div style={{ width: 420, padding: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 48 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${theme.accent.primary}, #818cf8)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, color: 'white' }}>T</div>
+          <img src="/teamsync.png" alt="TeamSync" style={{ height: 40, width: 'auto' }} />
           <span style={{ fontSize: 18, fontWeight: 600, color: theme.text.primary, letterSpacing: '-0.02em' }}>TeamSync</span>
         </div>
         <h1 style={{ fontSize: 28, fontWeight: 600, color: theme.text.primary, marginBottom: 8, letterSpacing: '-0.03em' }}>Create account</h1>
@@ -253,8 +361,8 @@ function Dashboard() {
       <aside style={{ width: 240, backgroundColor: theme.bg.panel, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${theme.border.subtle}` }}>
         {/* Logo */}
         <div style={{ padding: '20px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: `linear-gradient(135deg, ${theme.accent.primary}, #818cf8)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, color: 'white' }}>T</div>
-          <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.02em' }}>TeamSync</span>
+          <img src="/teamsync.png" alt="TeamSync" style={{ height: 40, width: 'auto' }} />
+          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em', color: 'white' }}>TeamSync</span>
         </div>
 
         {/* Profile Card */}
@@ -280,20 +388,20 @@ function Dashboard() {
             <button onClick={() => openModal('newProject')} style={{ background: 'none', border: 'none', color: theme.text.faint, cursor: 'pointer', padding: 2 }}>{Icon.plus}</button>
           </div>
           {projects.map(p => (
-            <ProjectItem 
-              key={p.id} 
-              project={p} 
-              isActive={currentProject?.id === p.id} 
-              onSelect={() => store.setCurrentProject(p.id)} 
-              onDelete={() => setConfirmDialog({ 
-                title: 'Delete Project', 
-                message: `Are you sure you want to delete "${p.name}"? This will permanently delete all sections, tasks, and remove all members. This action cannot be undone.`, 
-                onConfirm: () => store.deleteProject(p.id) 
-              })} 
-              onLeave={() => setConfirmDialog({ 
-                title: 'Leave Project', 
-                message: `Are you sure you want to leave "${p.name}"? You will be removed from this project and unassigned from all tasks.`, 
-                onConfirm: () => store.leaveProject(p.id) 
+            <ProjectItem
+              key={p.id}
+              project={p}
+              isActive={currentProject?.id === p.id}
+              onSelect={() => store.setCurrentProject(p.id)}
+              onDelete={() => setConfirmDialog({
+                title: 'Delete Project',
+                message: `Are you sure you want to delete "${p.name}"? This will permanently delete all sections, tasks, and remove all members. This action cannot be undone.`,
+                onConfirm: () => store.deleteProject(p.id)
+              })}
+              onLeave={() => setConfirmDialog({
+                title: 'Leave Project',
+                message: `Are you sure you want to leave "${p.name}"? You will be removed from this project and unassigned from all tasks.`,
+                onConfirm: () => store.leaveProject(p.id)
               })}
             />
           ))}
@@ -367,9 +475,9 @@ function Dashboard() {
 // ============ PROJECT ITEM ============
 function ProjectItem({ project, isActive, onSelect, onDelete, onLeave }: { project: Project & { role: string; isOwner: boolean }; isActive: boolean; onSelect: () => void; onDelete: () => void; onLeave: () => void }) {
   const [hovered, setHovered] = useState(false)
-  
+
   return (
-    <div 
+    <div
       style={{ position: 'relative', marginBottom: 2 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -381,8 +489,8 @@ function ProjectItem({ project, isActive, onSelect, onDelete, onLeave }: { proje
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <span style={{ fontSize: 10, opacity: 0.6 }}>👑</span>
             {hovered && (
-              <span 
-                onClick={(e) => { e.stopPropagation(); onDelete() }} 
+              <span
+                onClick={(e) => { e.stopPropagation(); onDelete() }}
                 style={{ color: theme.status.high.text, cursor: 'pointer', fontSize: 11, opacity: 0.8 }}
                 title="Delete project"
               >
@@ -392,8 +500,8 @@ function ProjectItem({ project, isActive, onSelect, onDelete, onLeave }: { proje
           </span>
         ) : (
           hovered && (
-            <span 
-              onClick={(e) => { e.stopPropagation(); onLeave() }} 
+            <span
+              onClick={(e) => { e.stopPropagation(); onLeave() }}
               style={{ color: theme.text.faint, cursor: 'pointer', fontSize: 10, opacity: 0.8 }}
               title="Leave project"
             >
@@ -447,6 +555,7 @@ function Column({ section, isOwner, onTaskClick, onAddTask, onEditSection, refre
   }
 
   const active = tasks.filter(t => t.status === 'ACTIVE')
+  const failed = tasks.filter(t => t.status === 'FAILED')
   const done = tasks.filter(t => t.status === 'DONE')
   const allowedRoles = store.getSectionAllowedRolesText(section.id)
 
@@ -485,14 +594,30 @@ function Column({ section, isOwner, onTaskClick, onAddTask, onEditSection, refre
 
       {/* Tasks */}
       <div style={{ flex: 1, padding: '0 12px 12px', overflowY: 'auto' }}>
-        {active.length === 0 && done.length === 0 && (
+        {active.length === 0 && failed.length === 0 && done.length === 0 && (
           <div style={{ textAlign: 'center', padding: 32, color: theme.text.faint, fontSize: 12 }}>No tasks yet</div>
         )}
-{active.map(task => <TaskCard key={task.id} task={task} onToggle={toggleTask} onClick={() => onTaskClick(task)} canEdit={canEdit} showConfirm={showConfirm} onMemberClick={onMemberClick} />)}
-            {done.length > 0 && (
-              <>
-                <div style={{ fontSize: 10, fontWeight: 500, color: theme.text.faint, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '16px 4px 8px' }}>Completed · {done.length}</div>
-                {done.map(task => <TaskCard key={task.id} task={task} isDone onToggle={toggleTask} onClick={() => onTaskClick(task)} canEdit={canEdit} showConfirm={showConfirm} onMemberClick={onMemberClick} />)}
+        {active.map(task => <TaskCard key={task.id} task={task} onToggle={toggleTask} onClick={() => onTaskClick(task)} canEdit={canEdit} showConfirm={showConfirm} onMemberClick={onMemberClick} />)}
+
+        {/* Failed Section - Red Header */}
+        {failed.length > 0 && (
+          <>
+            <div style={{ fontSize: 10, fontWeight: 600, color: theme.status.high.text, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '16px 4px 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: theme.status.high.text }} />
+              Failed · {failed.length}
+            </div>
+            {failed.map(task => <TaskCard key={task.id} task={task} isFailed onToggle={toggleTask} onClick={() => onTaskClick(task)} canEdit={canEdit} showConfirm={showConfirm} onMemberClick={onMemberClick} />)}
+          </>
+        )}
+
+        {/* Completed Section */}
+        {done.length > 0 && (
+          <>
+            <div style={{ fontSize: 10, fontWeight: 600, color: theme.status.low.text, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '16px 4px 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: theme.status.low.text }} />
+              Completed · {done.length}
+            </div>
+            {done.map(task => <TaskCard key={task.id} task={task} isDone onToggle={toggleTask} onClick={() => onTaskClick(task)} canEdit={canEdit} showConfirm={showConfirm} onMemberClick={onMemberClick} />)}
           </>
         )}
       </div>
@@ -501,11 +626,15 @@ function Column({ section, isOwner, onTaskClick, onAddTask, onEditSection, refre
 }
 
 // ============ TASK CARD (Premium) ============
-function TaskCard({ task, isDone, onToggle, onClick, canEdit, showConfirm, onMemberClick }: { task: ExtendedTask & { assignees: (ExtendedUser & { role_titles: string[] })[] }; isDone?: boolean; onToggle: (id: string, e: React.MouseEvent) => void; onClick: () => void; canEdit: boolean; showConfirm: (dialog: { title: string; message: string; onConfirm: () => void } | null) => void; onMemberClick?: (userId: string) => void }) {
+function TaskCard({ task, isDone, isFailed, onToggle, onClick, canEdit, showConfirm, onMemberClick }: { task: ExtendedTask & { assignees: (ExtendedUser & { role_titles: string[] })[] }; isDone?: boolean; isFailed?: boolean; onToggle: (id: string, e: React.MouseEvent) => void; onClick: () => void; canEdit: boolean; showConfirm: (dialog: { title: string; message: string; onConfirm: () => void } | null) => void; onMemberClick?: (userId: string) => void }) {
   const [hovered, setHovered] = useState(false)
   const comments = store.getTaskCommentCount(task.id)
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && !isDone
   const canDelete = store.canCurrentUserDelete()
+  const workingOnUsers = store.getWorkingOnUsers(task.id)
+  const workingOnUser = workingOnUsers.length > 0 ? workingOnUsers[0] : null
+  const isCurrentUserWorking = store.isCurrentUserWorkingOn(task.id)
+  const canWorkOn = store.canWorkOnTask(task.id)
 
   const formatDate = (d: string) => {
     const date = new Date(d)
@@ -516,38 +645,113 @@ function TaskCard({ task, isDone, onToggle, onClick, canEdit, showConfirm, onMem
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
+  const handleWorkingToggle = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isCurrentUserWorking) {
+      store.stopWorkingOn(task.id)
+    } else {
+      store.startWorkingOn(task.id)
+    }
+  }
+
   return (
     <div
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
+        position: 'relative',
         padding: 14,
         marginBottom: 8,
         backgroundColor: hovered ? theme.bg.hover : theme.bg.surface,
         borderRadius: theme.radius.md,
         cursor: 'pointer',
-        transition: 'all 0.2s ease',
+        transition: 'background 0.2s ease, box-shadow 0.2s ease',
         boxShadow: hovered ? theme.shadow.cardHover : theme.shadow.card,
-        transform: hovered ? 'translateY(-1px)' : 'none',
         opacity: isDone ? 0.6 : 1,
+        border: workingOnUsers.length > 0 ? `1px solid ${theme.accent.primary}` : '1px solid transparent',
       }}
     >
-      <div style={{ display: 'flex', gap: 12 }}>
-        {/* Checkbox */}
-        <div
-          onClick={e => canEdit && onToggle(task.id, e)}
+      {/* X Delete Button - Top Right (Now clear of overlap) */}
+      {hovered && canDelete && (
+        <button
+          onClick={e => { e.stopPropagation(); showConfirm({ title: 'Delete Task', message: `Are you sure you want to delete "${task.title}"?`, onConfirm: () => store.deleteTask(task.id) }) }}
           style={{
-            width: 18, height: 18, borderRadius: 5, flexShrink: 0, marginTop: 2,
-            border: `1.5px solid ${isDone ? theme.status.low.text : theme.text.faint}`,
-            backgroundColor: isDone ? theme.status.low.text : 'transparent',
+            position: 'absolute', top: 8, right: 8,
+            width: 20, height: 20, borderRadius: 4,
+            backgroundColor: 'transparent', border: 'none',
+            color: '#ef4444',
+            cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: canEdit ? 'pointer' : 'default',
             transition: 'all 0.15s',
+            opacity: 0.7,
+            zIndex: 10,
           }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '0.7' }}
         >
-          {isDone && <span style={{ color: 'white' }}>{Icon.check}</span>}
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+      )}
+      {/* Working On Indicator - Moved to bottom (hidden for failed) */}
+      {workingOnUsers.length > 0 && !isDone && !isFailed && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '8px 10px',
+          marginBottom: 10,
+          backgroundColor: theme.accent.muted,
+          borderRadius: theme.radius.sm,
+          flexWrap: 'wrap',
+        }}>
+          <div style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            backgroundColor: theme.accent.primary,
+            animation: 'pulse 1.5s infinite',
+            flexShrink: 0,
+          }} />
+          <span style={{ fontSize: 11, color: theme.accent.hover, fontWeight: 500 }}>
+            Active · {workingOnUsers.map(u => u.full_name).join(', ')}
+          </span>
+          {isCurrentUserWorking && (
+            <button
+              onClick={handleWorkingToggle}
+              style={{
+                marginLeft: 'auto',
+                background: 'none',
+                border: 'none',
+                color: theme.text.faint,
+                cursor: 'pointer',
+                fontSize: 10,
+                padding: '2px 6px',
+              }}
+            >
+              Stop
+            </button>
+          )}
         </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 12 }}>
+        {/* Checkbox - Hidden for Failed tasks */}
+        {!isFailed && (
+          <div
+            onClick={e => canEdit && onToggle(task.id, e)}
+            style={{
+              width: 18, height: 18, borderRadius: 5, flexShrink: 0, marginTop: 2,
+              border: `1.5px solid ${isDone ? theme.status.low.text : theme.text.faint}`,
+              backgroundColor: isDone ? theme.status.low.text : 'transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: canEdit ? 'pointer' : 'default',
+              transition: 'all 0.15s',
+            }}
+          >
+            {isDone && <span style={{ color: 'white' }}>{Icon.check}</span>}
+          </div>
+        )}
 
         <div style={{ flex: 1, minWidth: 0 }}>
           {/* Title */}
@@ -568,8 +772,13 @@ function TaskCard({ task, isDone, onToggle, onClick, canEdit, showConfirm, onMem
               {comments > 0 && <span style={{ fontSize: 11, color: theme.text.faint }}>💬 {comments}</span>}
               <div style={{ flex: 1 }} />
               {task.deadline && (
-                <span style={{ fontSize: 11, color: isOverdue ? theme.status.high.text : theme.text.faint }}>
-                  📅 {formatDate(task.deadline)}
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  fontSize: 11, fontWeight: 500, padding: '3px 8px', borderRadius: 6,
+                  backgroundColor: isOverdue ? theme.status.high.bg : theme.bg.hover,
+                  color: isOverdue ? theme.status.high.text : theme.text.muted
+                }}>
+                  {formatDate(task.deadline)}
                 </span>
               )}
             </div>
@@ -579,17 +788,17 @@ function TaskCard({ task, isDone, onToggle, onClick, canEdit, showConfirm, onMem
           {!isDone && task.assignees.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               {task.assignees.slice(0, 3).map(a => (
-                <button 
-                  key={a.id} 
+                <button
+                  key={a.id}
                   onClick={(e) => { e.stopPropagation(); onMemberClick?.(a.id) }}
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 6, 
-                    background: 'none', 
-                    border: 'none', 
-                    cursor: 'pointer', 
-                    padding: 0 
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0
                   }}
                 >
                   <Avatar name={`${a.full_name} ${a.surname}`} size={20} />
@@ -599,12 +808,30 @@ function TaskCard({ task, isDone, onToggle, onClick, canEdit, showConfirm, onMem
               {task.assignees.length > 3 && <span style={{ fontSize: 11, color: theme.text.faint }}>+{task.assignees.length - 3}</span>}
             </div>
           )}
-        </div>
 
-        {/* Delete on hover - only for admins/owners */}
-        {hovered && canDelete && (
-          <button onClick={e => { e.stopPropagation(); showConfirm({ title: 'Delete Task', message: `Are you sure you want to delete "${task.title}"?`, onConfirm: () => store.deleteTask(task.id) }) }} style={{ background: 'none', border: 'none', color: theme.status.high.text, cursor: 'pointer', padding: 4, opacity: 0.7, alignSelf: 'flex-start' }}>{Icon.trash}</button>
-        )}
+          {/* Work on it button - hidden for failed tasks */}
+          {!isDone && !isFailed && canWorkOn && !isCurrentUserWorking && hovered && (
+            <button
+              onClick={handleWorkingToggle}
+              style={{
+                marginTop: 8,
+                padding: '6px 12px',
+                backgroundColor: theme.accent.muted,
+                border: `1px solid ${theme.accent.primary}`,
+                borderRadius: theme.radius.sm,
+                color: theme.accent.primary,
+                cursor: 'pointer',
+                fontSize: 11,
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <span style={{ fontSize: 14 }}>▶</span> I'm working on this
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -643,20 +870,20 @@ function AddTaskModal({ sectionId, onClose }: { sectionId: string; onClose: () =
       <form onSubmit={submit}>
         <Label>Title</Label>
         <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="What needs to be done?" style={inputStyle} autoFocus required />
-        
+
         <Label style={{ marginTop: 16 }}>Description</Label>
         <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Add details..." rows={2} style={{ ...inputStyle, resize: 'none' }} />
-        
+
         <Label style={{ marginTop: 16 }}>Priority</Label>
         <div style={{ display: 'flex', gap: 8 }}>
           {(['LOW', 'MEDIUM', 'HIGH'] as Priority[]).map(p => (
             <button key={p} type="button" onClick={() => setForm(f => ({ ...f, priority: p }))} style={{ flex: 1, padding: '8px', borderRadius: theme.radius.sm, border: `1px solid ${form.priority === p ? theme.status[p.toLowerCase() as keyof typeof theme.status].text : theme.border.default}`, backgroundColor: form.priority === p ? theme.status[p.toLowerCase() as keyof typeof theme.status].bg : 'transparent', color: form.priority === p ? theme.status[p.toLowerCase() as keyof typeof theme.status].text : theme.text.muted, cursor: 'pointer', fontSize: 12, fontWeight: 500 }}>{p}</button>
           ))}
         </div>
-        
+
         <Label style={{ marginTop: 16 }}>Deadline</Label>
         <input type="date" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} style={inputStyle} />
-        
+
         <Label style={{ marginTop: 16 }}>Assignees</Label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {members.map(m => (
@@ -665,7 +892,7 @@ function AddTaskModal({ sectionId, onClose }: { sectionId: string; onClose: () =
             </button>
           ))}
         </div>
-        
+
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 24 }}>
           <button type="button" onClick={onClose} style={btnSecondary}>Cancel</button>
           <button type="submit" style={btnPrimarySmall} disabled={!form.title.trim()}>Create</button>
@@ -685,11 +912,38 @@ function TaskDetailModal({ task, onClose, showConfirm }: { task: ExtendedTask; o
   const me = store.getCurrentUser()
   const canEdit = store.canEditSection(task.section_id)
   const canDelete = store.canCurrentUserDelete()
-  
+  const canWorkOn = store.canWorkOnTask(task.id)
+  const isCurrentUserWorking = store.isCurrentUserWorkingOn(task.id)
+  const [liveTask, setLiveTask] = useState<ExtendedTask>(store.getTask(task.id) || task)
+  const isEditingTask = isEditing // Alias for clarity
+
+  // Subscribe to task updates
+  useEffect(() => {
+    const update = () => {
+      const t = store.getTask(task.id)
+      if (t) setLiveTask({ ...t })
+    }
+    update() // Initial fetch
+    return store.subscribe(update)
+  }, [task.id])
+
   // Get assignee details
-  const assigneeDetails = form.assignees.map(id => members.find(m => m.user_id === id)).filter(Boolean)
+  const assigneeDetails = (liveTask.assigned_to_list || []).map(id => members.find(m => m.user_id === id)).filter(Boolean)
 
   useEffect(() => { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight }, [comments])
+
+  // Sync form with live task when entering edit mode
+  useEffect(() => {
+    if (isEditing) {
+      setForm({
+        title: liveTask.title,
+        description: liveTask.description || '',
+        deadline: liveTask.deadline || '',
+        assignees: liveTask.assigned_to_list || [],
+        priority: liveTask.priority
+      })
+    }
+  }, [isEditing, liveTask])
 
   const toggle = (id: string) => {
     const list = form.assignees.includes(id) ? form.assignees.filter(x => x !== id) : [...form.assignees, id]
@@ -697,38 +951,38 @@ function TaskDetailModal({ task, onClose, showConfirm }: { task: ExtendedTask; o
   }
 
   const saveChanges = () => {
-    store.updateTask(task.id, { 
-      title: form.title, 
-      description: form.description || null, 
+    store.updateTask(liveTask.id, {
+      title: form.title,
+      description: form.description || null,
       deadline: form.deadline || null,
       priority: form.priority,
-      assigned_to_list: form.assignees 
+      assigned_to_list: form.assignees
     })
     setIsEditing(false)
   }
 
   const send = () => {
     if (!msg.trim()) return
-    setComments([...comments, store.addTaskComment(task.id, msg.trim())])
+    setComments([...comments, store.addTaskComment(liveTask.id, msg.trim())])
     setMsg('')
   }
 
   const priorityLabel = { LOW: { text: 'Low', color: theme.status.low.text }, MEDIUM: { text: 'Medium', color: theme.status.medium.text }, HIGH: { text: 'High', color: theme.status.high.text } }
 
   return (
-    <Modal title={isEditing ? 'Edit Task' : task.title} onClose={onClose} wide>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: 24 }}>
+    <Modal title={isEditing ? 'Edit Task' : liveTask.title} onClose={onClose} wide>
+      <div style={{ display: 'grid', gridTemplateColumns: isEditing ? '1fr' : '1fr 240px', gap: 24 }}>
         {/* Left */}
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           {isEditing ? (
             // ========== EDIT MODE ==========
             <>
               <Label>Title</Label>
               <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={inputStyle} />
-              
+
               <Label style={{ marginTop: 16 }}>Description</Label>
               <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} style={{ ...inputStyle, resize: 'none' }} placeholder="Add description..." />
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
                 <div>
                   <Label>Priority</Label>
@@ -743,7 +997,7 @@ function TaskDetailModal({ task, onClose, showConfirm }: { task: ExtendedTask; o
                   <input type="date" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} style={inputStyle} />
                 </div>
               </div>
-              
+
               <Label style={{ marginTop: 16 }}>Assignees</Label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {members.map(m => (
@@ -752,43 +1006,43 @@ function TaskDetailModal({ task, onClose, showConfirm }: { task: ExtendedTask; o
                   </button>
                 ))}
               </div>
-              
+
               <div style={{ marginTop: 24, paddingTop: 16, borderTop: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button onClick={() => setIsEditing(false)} style={btnSecondary}>Cancel</button>
-                <button onClick={saveChanges} style={btnPrimarySmall}>Save Changes</button>
+                <button onClick={() => setIsEditing(false)} style={{ ...btnSecondary, padding: '6px 12px', fontSize: 12 }}>Cancel</button>
+                <button onClick={saveChanges} style={{ ...btnPrimarySmall, padding: '6px 12px', fontSize: 12 }}>Save Changes</button>
               </div>
             </>
           ) : (
             // ========== VIEW MODE ==========
             <>
               {/* Description */}
-              {task.description ? (
+              {liveTask.description ? (
                 <div style={{ marginBottom: 20 }}>
                   <Label>Description</Label>
-                  <p style={{ fontSize: 13, color: theme.text.secondary, lineHeight: 1.6, margin: 0 }}>{task.description}</p>
+                  <p style={{ fontSize: 13, color: theme.text.secondary, lineHeight: 1.6, margin: 0 }}>{liveTask.description}</p>
                 </div>
               ) : (
                 <p style={{ fontSize: 13, color: theme.text.faint, fontStyle: 'italic', marginBottom: 20 }}>No description</p>
               )}
-              
+
               {/* Details */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 12, color: theme.text.muted }}>Priority</span>
-                  <span style={{ fontSize: 12, fontWeight: 500, color: priorityLabel[task.priority].color }}>{priorityLabel[task.priority].text}</span>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: priorityLabel[liveTask.priority].color }}>{priorityLabel[liveTask.priority].text}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 12, color: theme.text.muted }}>Status</span>
-                  <span style={{ fontSize: 12, color: task.status === 'DONE' ? theme.status.low.text : theme.text.primary }}>{task.status === 'DONE' ? 'Completed' : 'Active'}</span>
+                  <span style={{ fontSize: 12, color: liveTask.status === 'DONE' ? theme.status.low.text : theme.text.primary }}>{liveTask.status === 'DONE' ? 'Completed' : 'Active'}</span>
                 </div>
-                {task.deadline && (
+                {liveTask.deadline && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 12, color: theme.text.muted }}>Deadline</span>
-                    <span style={{ fontSize: 12, color: theme.text.primary }}>{new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span style={{ fontSize: 12, color: theme.text.primary }}>{new Date(liveTask.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                   </div>
                 )}
               </div>
-              
+
               {/* Assignees */}
               {assigneeDetails.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
@@ -803,44 +1057,52 @@ function TaskDetailModal({ task, onClose, showConfirm }: { task: ExtendedTask; o
                   </div>
                 </div>
               )}
-              
+
               {/* Actions */}
-              <div style={{ marginTop: 24, paddingTop: 16, borderTop: `1px solid ${theme.border.subtle}`, display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', gap: 10 }}>
-                  {canDelete && (
-                    <button onClick={() => showConfirm({ title: 'Delete Task', message: `Are you sure you want to delete "${task.title}"?`, onConfirm: () => { store.deleteTask(task.id); onClose() } })} style={{ ...btnSecondary, color: theme.status.high.text }}>{Icon.trash} Delete</button>
-                  )}
-                  {canEdit && (
-                    <button onClick={() => setIsEditing(true)} style={btnSecondary}>{Icon.settings} Edit</button>
-                  )}
-                </div>
-                <button onClick={onClose} style={btnPrimarySmall}>Close</button>
+              <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: `1px solid ${theme.border.subtle}`, display: 'flex', alignItems: 'center', gap: 10, height: 42 }}>
+                {canDelete && (
+                  <button onClick={() => showConfirm({ title: 'Delete Task', message: `Are you sure you want to delete "${liveTask.title}"?`, onConfirm: () => { store.deleteTask(liveTask.id); onClose() } })} style={{ ...btnSecondary, color: theme.status.high.text, padding: '6px 12px', fontSize: 13, flex: 1, justifyContent: 'center', whiteSpace: 'nowrap' }}>{Icon.trash} Delete</button>
+                )}
+                {canEdit && (
+                  <button onClick={() => setIsEditing(true)} style={{ ...btnSecondary, padding: '6px 12px', fontSize: 13, flex: 1, justifyContent: 'center', whiteSpace: 'nowrap' }}>{Icon.settings} Edit</button>
+                )}
+                {/* Work on it / Stop working button */}
+                {liveTask.status !== 'DONE' && liveTask.status !== 'FAILED' && canWorkOn && (
+                  isCurrentUserWorking ? (
+                    <button onClick={() => { store.stopWorkingOn(liveTask.id) }} style={{ ...btnSecondary, color: theme.text.muted, padding: '6px 12px', fontSize: 13, flex: 1, justifyContent: 'center', minWidth: 'auto', whiteSpace: 'nowrap' }}>⏹ Stop Working</button>
+                  ) : (
+                    <button onClick={() => { store.startWorkingOn(liveTask.id) }} style={{ ...btnSecondary, color: theme.accent.primary, padding: '6px 12px', fontSize: 13, flex: 1, justifyContent: 'center', minWidth: 'auto', whiteSpace: 'nowrap' }}>▶ Work on this</button>
+                  )
+                )}
               </div>
             </>
           )}
         </div>
-        
+
         {/* Right: Chat */}
-        <div style={{ borderLeft: `1px solid ${theme.border.subtle}`, paddingLeft: 20, display: 'flex', flexDirection: 'column' }}>
-          <Label style={{ marginBottom: 12 }}>💬 Comments</Label>
-          <div ref={chatRef} style={{ flex: 1, overflowY: 'auto', maxHeight: 280, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {comments.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 24, color: theme.text.faint, fontSize: 12 }}>No comments yet</div>
-            ) : comments.map(c => {
-              const isMe = c.user_id === me?.id
-              return (
-                <div key={c.id} style={{ display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
-                  <div style={{ fontSize: 10, color: theme.text.faint, marginBottom: 4 }}>{isMe ? 'You' : c.user_name}</div>
-                  <div style={{ maxWidth: '90%', padding: '8px 12px', borderRadius: isMe ? '12px 12px 4px 12px' : '12px 12px 12px 4px', backgroundColor: isMe ? theme.accent.primary : theme.bg.surface, color: isMe ? 'white' : theme.text.primary, fontSize: 12 }}>{c.text}</div>
-                </div>
-              )
-            })}
+        {/* Right: Chat - Hide when editing */}
+        {!isEditing && (
+          <div style={{ borderLeft: `1px solid ${theme.border.subtle}`, paddingLeft: 20, display: 'flex', flexDirection: 'column' }}>
+            <Label style={{ marginBottom: 12 }}>💬 Comments</Label>
+            <div ref={chatRef} style={{ flex: 'none', overflowY: 'auto', height: 300, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 10, paddingRight: 4 }}>
+              {comments.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 24, color: theme.text.faint, fontSize: 12 }}>No comments yet</div>
+              ) : comments.map(c => {
+                const isMe = c.user_id === me?.id
+                return (
+                  <div key={c.id} style={{ display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
+                    <div style={{ fontSize: 10, color: theme.text.faint, marginBottom: 4 }}>{isMe ? 'You' : c.user_name}</div>
+                    <div style={{ maxWidth: '90%', padding: '8px 12px', borderRadius: isMe ? '12px 12px 4px 12px' : '12px 12px 12px 4px', backgroundColor: isMe ? theme.accent.primary : theme.bg.surface, color: isMe ? 'white' : theme.text.primary, fontSize: 12 }}>{c.text}</div>
+                  </div>
+                )
+              })}
+            </div>
+            <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: `1px solid ${theme.border.subtle}`, display: 'flex', alignItems: 'center', gap: 8, height: 42 }}>
+              <input type="text" value={msg} onChange={e => setMsg(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()} placeholder="Message..." style={{ ...inputStyle, flex: 1, padding: '0 16px', fontSize: 13, height: '100%' }} />
+              <button onClick={send} style={{ ...btnPrimarySmall, padding: '0 16px', fontSize: 13, height: '100%', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={!msg.trim()}>{Icon.send}</button>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input type="text" value={msg} onChange={e => setMsg(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()} placeholder="Message..." style={{ ...inputStyle, flex: 1, padding: '8px 12px' }} />
-            <button onClick={send} style={{ ...btnPrimarySmall, padding: '8px 12px' }} disabled={!msg.trim()}>{Icon.send}</button>
-          </div>
-        </div>
+        )}
       </div>
     </Modal>
   )
@@ -918,28 +1180,28 @@ function EditSectionModal({ section, onClose }: { section: Section; onClose: () 
   const [roles, setRoles] = useState<string[]>(section.allowed_roles)
   const projectRoles = store.getProjectRoles()
   const toggle = (r: string) => { if (r !== 'Owner') setRoles(rs => rs.includes(r) ? rs.filter(x => x !== r) : [...rs, r]) }
-  const save = () => { 
+  const save = () => {
     store.updateSection(section.id, { name: name.trim() || section.name, allowed_roles: roles })
-    onClose() 
+    onClose()
   }
 
   return (
     <Modal title="Edit Section" onClose={onClose}>
       <div style={{ marginBottom: 20 }}>
         <label style={{ display: 'block', fontSize: 12, color: theme.text.muted, marginBottom: 6 }}>Section Name</label>
-        <input 
-          type="text" 
-          value={name} 
-          onChange={e => setName(e.target.value)} 
-          placeholder="Section name..." 
-          style={{ ...inputStyle, width: '100%' }} 
+        <input
+          type="text"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="Section name..."
+          style={{ ...inputStyle, width: '100%' }}
         />
       </div>
       <p style={{ fontSize: 12, color: theme.text.muted, marginBottom: 10 }}>Select roles that can edit tasks in this section.</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {projectRoles.map(r => (
           <label key={r.id} onClick={() => toggle(r.name)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: theme.radius.sm, backgroundColor: roles.includes(r.name) ? theme.accent.muted : theme.bg.surface, border: `1px solid ${roles.includes(r.name) ? theme.accent.primary : 'transparent'}`, cursor: r.name === 'Owner' ? 'default' : 'pointer' }}>
-            <input type="checkbox" checked={roles.includes(r.name)} onChange={() => {}} disabled={r.name === 'Owner'} style={{ accentColor: theme.accent.primary }} />
+            <input type="checkbox" checked={roles.includes(r.name)} onChange={() => { }} disabled={r.name === 'Owner'} style={{ accentColor: theme.accent.primary }} />
             <div style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: r.color }} />
             <span style={{ flex: 1, fontSize: 13 }}>{r.name}</span>
             {r.name === 'Owner' && <span style={{ fontSize: 10, color: theme.text.faint }}>Always</span>}
@@ -973,18 +1235,18 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
   const [, forceUpdate] = useState(0)
   const project = store.getCurrentProject()
 
-  const addRole = () => { 
-    if (newRole.name.trim()) { 
+  const addRole = () => {
+    if (newRole.name.trim()) {
       store.addProjectRole(newRole.name.trim(), undefined, newRole.permissions)
       setProjectRoles(store.getProjectRoles())
       setNewRole({ name: '', permissions: { ...DEFAULT_PERMISSIONS } })
-      setAdding(false) 
-    } 
+      setAdding(false)
+    }
   }
-  const deleteRole = (id: string, name: string, roleName: string) => { 
-    showConfirm({ 
-      title: 'Delete Role', 
-      message: `Are you sure you want to delete the "${roleName}" role? Members with this role will be changed to "Member".`, 
+  const deleteRole = (id: string, name: string, roleName: string) => {
+    showConfirm({
+      title: 'Delete Role',
+      message: `Are you sure you want to delete the "${roleName}" role? Members with this role will be changed to "Member".`,
       onConfirm: () => { store.deleteProjectRole(id); setProjectRoles(store.getProjectRoles()) }
     })
   }
@@ -997,10 +1259,10 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
     }
   }
   const changeRole = (userId: string, role: string) => { store.updateMemberRole(userId, role); setEditing(null) }
-  const removeMember = (userId: string, userName: string) => { 
-    showConfirm({ 
-      title: 'Remove Member', 
-      message: `Are you sure you want to remove ${userName} from this project? They will lose access to all tasks.`, 
+  const removeMember = (userId: string, userName: string) => {
+    showConfirm({
+      title: 'Remove Member',
+      message: `Are you sure you want to remove ${userName} from this project? They will lose access to all tasks.`,
       onConfirm: () => { store.removeMember(userId); forceUpdate(n => n + 1) }
     })
   }
@@ -1013,7 +1275,7 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
-    
+
     if (diffMins < 1) return 'Just now'
     if (diffMins < 60) return `${diffMins}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
@@ -1024,143 +1286,9 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
   return (
     <Modal title="Team" onClose={onClose} wide={isOwner || store.canCurrentUserEditRoles()}>
       {selectedMember ? (
-        // Member Detail View - Card Style
-        <div style={{ margin: -24, marginBottom: 0 }}>
-          {/* Cover Image / Gradient Header */}
-          <div style={{ 
-            height: 120, 
-            background: `linear-gradient(135deg, ${theme.bg.surface} 0%, #1e3a5f 50%, #0f172a 100%)`,
-            backgroundImage: 'url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=200&fit=crop")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            position: 'relative'
-          }}>
-            {/* Back button */}
-            <button 
-              onClick={() => setSelectedMember(null)} 
-              style={{ 
-                position: 'absolute', 
-                top: 12, 
-                left: 12, 
-                background: 'rgba(0,0,0,0.4)', 
-                backdropFilter: 'blur(4px)',
-                border: 'none', 
-                color: '#fff', 
-                cursor: 'pointer', 
-                fontSize: 11, 
-                padding: '6px 12px',
-                borderRadius: 6,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4
-              }}
-            >
-              ← Back
-            </button>
-            
-            {/* Online indicator */}
-            {store.isUserOnline(selectedMember.user_id) && (
-              <div style={{ 
-                position: 'absolute', 
-                top: 12, 
-                right: 12, 
-                background: 'rgba(34, 197, 94, 0.2)', 
-                backdropFilter: 'blur(4px)',
-                border: '1px solid rgba(34, 197, 94, 0.5)',
-                color: '#22c55e', 
-                fontSize: 10, 
-                padding: '4px 10px',
-                borderRadius: 20,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6
-              }}>
-                <span style={{ width: 6, height: 6, borderRadius: 6, backgroundColor: '#22c55e' }} />
-                Online
-              </div>
-            )}
-          </div>
-          
-          {/* Profile Content */}
-          <div style={{ padding: '0 24px 24px 24px', marginTop: -40 }}>
-            {/* Avatar and Name Row - Aligned */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, marginBottom: 16 }}>
-              <div style={{ 
-                width: 80, 
-                height: 80, 
-                borderRadius: '50%', 
-                border: `4px solid ${theme.bg.panel}`,
-                overflow: 'hidden',
-                flexShrink: 0
-              }}>
-                <Avatar name={`${selectedMember.user.full_name} ${selectedMember.user.surname}`} size={72} />
-              </div>
-              
-              <div style={{ flex: 1, paddingBottom: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                  <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: theme.text.primary }}>
-                    {selectedMember.user.full_name} {selectedMember.user.surname}
-                  </h3>
-                  <span style={{ fontSize: 13, color: '#f59e0b' }}>🔥 {selectedMember.user.streak}</span>
-                </div>
-                <p style={{ fontSize: 12, color: theme.text.muted, margin: 0 }}>@{selectedMember.user.username}</p>
-                <p style={{ fontSize: 11, color: theme.text.faint, margin: '4px 0 0 0' }}>Joined {new Date(selectedMember.joined_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-              </div>
-            </div>
-            
-            {/* Role badges */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
-              {selectedMember.role_titles.map(role => (
-                <span key={role} style={{ fontSize: 11, color: theme.accent.primary, backgroundColor: theme.accent.muted, padding: '4px 10px', borderRadius: 12 }}>{role}</span>
-              ))}
-            </div>
-            
-            {/* Email */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', marginBottom: 16, borderBottom: `1px solid ${theme.border.subtle}` }}>
-              <span style={{ fontSize: 12, color: theme.text.muted }}>Email</span>
-              <span style={{ fontSize: 12, color: theme.text.primary }}>{selectedMember.user.email}</span>
-            </div>
-            
-            {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button 
-                onClick={() => setSelectedMember(null)} 
-                style={{ 
-                  flex: 1, 
-                  padding: '12px 20px', 
-                  backgroundColor: 'transparent', 
-                  border: `1px solid ${theme.border.default}`, 
-                  borderRadius: theme.radius.sm, 
-                  color: theme.text.primary, 
-                  cursor: 'pointer', 
-                  fontSize: 12,
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}
-              >
-                Back
-              </button>
-              <button 
-                onClick={onClose} 
-                style={{ 
-                  flex: 1, 
-                  padding: '12px 20px', 
-                  backgroundColor: theme.accent.primary, 
-                  border: 'none', 
-                  borderRadius: theme.radius.sm, 
-                  color: '#fff', 
-                  cursor: 'pointer', 
-                  fontSize: 12,
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}
-              >
-                Done
-              </button>
-            </div>
-          </div>
+        // Member Detail View - Uses shared ProfileCard
+        <div style={{ margin: -20 }}>
+          <ProfileCard member={selectedMember} onClose={() => setSelectedMember(null)} style={{ maxWidth: '100%', borderRadius: 0 }} />
         </div>
       ) : (
         // Members List View
@@ -1189,9 +1317,9 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
                         {projectRoles.map(r => {
                           const hasRole = m.role_titles.includes(r.name)
                           return (
-                            <button 
-                              key={r.id} 
-                              onClick={() => store.toggleMemberRole(m.user_id, r.name)} 
+                            <button
+                              key={r.id}
+                              onClick={() => store.toggleMemberRole(m.user_id, r.name)}
                               style={{ padding: '3px 6px', borderRadius: 4, border: `1px solid ${hasRole ? theme.accent.primary : theme.border.default}`, backgroundColor: hasRole ? theme.accent.muted : 'transparent', color: theme.text.primary, cursor: 'pointer', fontSize: 10 }}
                             >
                               {hasRole && '✓ '}{r.name}
@@ -1219,7 +1347,7 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
           {(isOwner || store.canCurrentUserEditRoles()) && (
             <div style={{ borderLeft: `1px solid ${theme.border.subtle}`, paddingLeft: 20 }}>
               <div style={{ fontSize: 11, fontWeight: 500, color: theme.text.faint, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Roles</div>
-              
+
               {editingRole ? (
                 // Editing role permissions
                 <div>
@@ -1236,12 +1364,12 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
                       const disabled = p.key !== 'is_admin' && isAdmin
                       return (
                         <label key={p.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 10px', backgroundColor: theme.bg.surface, borderRadius: theme.radius.sm, cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.6 : 1 }}>
-                          <input 
-                            type="checkbox" 
-                            checked={checked} 
+                          <input
+                            type="checkbox"
+                            checked={checked}
                             disabled={disabled}
-                            onChange={() => updatePermission(editingRole.id, p.key, !editingRole.permissions[p.key])} 
-                            style={{ accentColor: theme.accent.primary, marginTop: 2 }} 
+                            onChange={() => updatePermission(editingRole.id, p.key, !editingRole.permissions[p.key])}
+                            style={{ accentColor: theme.accent.primary, marginTop: 2 }}
                           />
                           <div>
                             <div style={{ fontSize: 12, fontWeight: 500 }}>{p.label}</div>
@@ -1285,12 +1413,12 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
                           const disabled = p.key !== 'is_admin' && isAdmin
                           return (
                             <label key={p.key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: disabled ? theme.text.faint : theme.text.muted, cursor: disabled ? 'default' : 'pointer' }}>
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={checked}
                                 disabled={disabled}
-                                onChange={() => setNewRole(r => ({ ...r, permissions: { ...r.permissions, [p.key]: !r.permissions[p.key] } }))} 
-                                style={{ accentColor: theme.accent.primary }} 
+                                onChange={() => setNewRole(r => ({ ...r, permissions: { ...r.permissions, [p.key]: !r.permissions[p.key] } }))}
+                                style={{ accentColor: theme.accent.primary }}
                               />
                               {p.label}
                             </label>
@@ -1311,9 +1439,11 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
           )}
         </div>
       )}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20, paddingTop: 16, borderTop: `1px solid ${theme.border.subtle}` }}>
-        <button onClick={onClose} style={btnPrimarySmall}>Done</button>
-      </div>
+      {!selectedMember && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20, paddingTop: 16, borderTop: `1px solid ${theme.border.subtle}` }}>
+          <button onClick={onClose} style={btnPrimarySmall}>Done</button>
+        </div>
+      )}
     </Modal>
   )
 }
@@ -1340,80 +1470,13 @@ function ConfirmDialog({ title, message, onConfirm, onCancel }: { title: string;
 function MemberProfileModal({ userId, onClose }: { userId: string; onClose: () => void }) {
   const allMembers = store.getProjectMembers()
   const member = allMembers.find(m => m.user_id === userId)
-  
+
   if (!member) return null
-  
-  const formatLastActive = (dateStr: string) => {
-    const date = new Date(dateStr)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMs / 3600000)
-    const diffDays = Math.floor(diffMs / 86400000)
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    if (diffHours < 24) return `${diffHours}h ago`
-    if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  }
-  
+
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24 }} onClick={onClose}>
-      <div style={{ backgroundColor: theme.bg.panel, borderRadius: theme.radius.lg, width: '100%', maxWidth: 320, overflow: 'hidden', boxShadow: theme.shadow.lg }} onClick={e => e.stopPropagation()}>
-        {/* Cover Image */}
-        <div style={{ 
-          height: 100, 
-          background: `linear-gradient(135deg, ${theme.bg.surface} 0%, #1e3a5f 50%, #0f172a 100%)`,
-          backgroundImage: 'url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=200&fit=crop")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          position: 'relative'
-        }}>
-          {store.isUserOnline(member.user_id) && (
-            <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(34, 197, 94, 0.2)', backdropFilter: 'blur(4px)', border: '1px solid rgba(34, 197, 94, 0.5)', color: '#22c55e', fontSize: 9, padding: '3px 8px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 5, height: 5, borderRadius: 5, backgroundColor: '#22c55e' }} /> Online
-            </div>
-          )}
-        </div>
-        
-        {/* Profile Content */}
-        <div style={{ padding: '0 20px 20px 20px', marginTop: -32 }}>
-          {/* Avatar and Name Row */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, marginBottom: 16 }}>
-            <div style={{ width: 64, height: 64, borderRadius: '50%', border: `3px solid ${theme.bg.panel}`, overflow: 'hidden', flexShrink: 0 }}>
-              <Avatar name={`${member.user.full_name} ${member.user.surname}`} size={58} />
-            </div>
-            <div style={{ flex: 1, paddingBottom: 4 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 600, margin: 0, color: theme.text.primary }}>{member.user.full_name} {member.user.surname}</h3>
-                <span style={{ fontSize: 12, color: '#f59e0b' }}>🔥 {member.user.streak}</span>
-              </div>
-              <p style={{ fontSize: 12, color: theme.text.muted, margin: '2px 0 0 0' }}>@{member.user.username}</p>
-            </div>
-          </div>
-          
-          {/* Role badges */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
-            {member.role_titles.map(role => (
-              <span key={role} style={{ fontSize: 11, color: theme.accent.primary, backgroundColor: theme.accent.muted, padding: '4px 10px', borderRadius: 12 }}>{role}</span>
-            ))}
-          </div>
-          
-          {/* Info rows */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 12, color: theme.text.muted }}>Email</span>
-              <span style={{ fontSize: 12, color: theme.text.primary }}>{member.user.email}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 12, color: theme.text.muted }}>Joined</span>
-              <span style={{ fontSize: 12, color: theme.text.primary }}>{new Date(member.joined_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-            </div>
-          </div>
-          
-          {/* Button */}
-          <button onClick={onClose} style={{ width: '100%', padding: '10px', backgroundColor: theme.accent.primary, border: 'none', borderRadius: theme.radius.sm, color: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Done</button>
-        </div>
+      <div style={{ width: '100%', maxWidth: 360, boxShadow: theme.shadow.lg }} onClick={e => e.stopPropagation()}>
+        <ProfileCard member={member} onClose={onClose} />
       </div>
     </div>
   )
@@ -1564,6 +1627,6 @@ function SearchModal({ onClose, onSelectTask }: { onClose: () => void; onSelectT
 // ============ STYLES ============
 const inputStyle: React.CSSProperties = { width: '100%', padding: '11px 14px', backgroundColor: theme.bg.surface, border: `1px solid ${theme.border.default}`, borderRadius: theme.radius.sm, color: theme.text.primary, fontSize: 13, outline: 'none', transition: 'border 0.15s' }
 const Label = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: theme.text.secondary, marginBottom: 8, ...style }}>{children}</label>
-const btnPrimary: React.CSSProperties = { width: '100%', padding: '12px', backgroundColor: theme.accent.primary, border: 'none', borderRadius: theme.radius.sm, color: 'white', cursor: 'pointer', fontSize: 14, fontWeight: 500 }
+const btnPrimary: React.CSSProperties = { width: '100%', padding: '11px 14px', backgroundColor: theme.accent.primary, border: `1px solid ${theme.accent.primary}`, borderRadius: theme.radius.sm, color: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 500 }
 const btnPrimarySmall: React.CSSProperties = { padding: '8px 16px', backgroundColor: theme.accent.primary, border: 'none', borderRadius: theme.radius.sm, color: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }
 const btnSecondary: React.CSSProperties = { padding: '8px 14px', backgroundColor: 'transparent', border: `1px solid ${theme.border.default}`, borderRadius: theme.radius.sm, color: theme.text.primary, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }
