@@ -120,7 +120,7 @@ TeamSync follows these design principles:
 - [x] Phase 1: MVP (Core task management)
 - [x] Phase 2: Collaboration (Invite links, roles)
 - [x] Phase 3: Polish (Confetti, priorities)
-- [ ] Phase 4: Real-time sync with Supabase
+- [x] Phase 4: Real-time sync with Supabase
 - [ ] Phase 5: Mobile app (React Native)
 
 ## 📄 License

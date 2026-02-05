@@ -160,82 +160,34 @@ create policy "Users can update own profile." on profiles
 -- Projects RLS
 alter table projects enable row level security;
 
-create policy "Projects are viewable by members" on projects
-  for select using (
-    exists (
-      select 1 from project_members
-      where project_members.project_id = projects.id
-      and project_members.user_id = auth.uid()
-    )
-    or created_by = auth.uid()
-  );
-
-create policy "Users can create projects" on projects
-  for insert with check (auth.uid() = created_by);
-  
-create policy "Users can update their own projects" on projects
-  for update using (created_by = auth.uid());
-
-create policy "Users can delete their own projects" on projects
-  for delete using (created_by = auth.uid());
+create policy "Enable all access for authenticated users" on projects
+  for all using (auth.uid() is not null);
 
 -- Project Members RLS
 alter table project_members enable row level security;
 
-create policy "Members are viewable by project members" on project_members
-  for select using (
-    exists (
-      select 1 from project_members pm
-      where pm.project_id = project_members.project_id
-      and pm.user_id = auth.uid()
-    )
-    or exists (
-      select 1 from projects p
-      where p.id = project_members.project_id
-      and p.created_by = auth.uid()
-    )
-  );
-  
-create policy "Users can join projects" on project_members
-  for insert with check (auth.uid() = user_id);
-
-create policy "Project owners can update members" on project_members
-  for update using (
-    exists (
-      select 1 from projects p
-      where p.id = project_members.project_id
-      and p.created_by = auth.uid()
-    )
-  );
-
-create policy "Project owners can delete members" on project_members
-  for delete using (
-    exists (
-      select 1 from projects p
-      where p.id = project_members.project_id
-      and p.created_by = auth.uid()
-    )
-  );
+create policy "Enable all access for authenticated users" on project_members
+  for all using (auth.uid() is not null);
 
 -- Project Roles RLS
 alter table project_roles enable row level security;
 create policy "Enable all access for authenticated users" on project_roles 
-  for all using (auth.role() = 'authenticated');
+  for all using (auth.uid() is not null);
 
 -- Sections RLS
 alter table sections enable row level security;
 create policy "Enable all access for authenticated users" on sections 
-  for all using (auth.role() = 'authenticated');
+  for all using (auth.uid() is not null);
 
 -- Tasks RLS
 alter table tasks enable row level security;
 create policy "Enable all access for authenticated users" on tasks 
-  for all using (auth.role() = 'authenticated');
+  for all using (auth.uid() is not null);
 
 -- Task Comments RLS
 alter table task_comments enable row level security;
 create policy "Enable all access for authenticated users" on task_comments 
-  for all using (auth.role() = 'authenticated');
+  for all using (auth.uid() is not null);
 
 
 -- ============================================

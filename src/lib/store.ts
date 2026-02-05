@@ -136,49 +136,57 @@ class Store {
         currentUserId = null
       }
 
-      // 2. Load Profiles (Users)
-      const { data: profiles } = await supabase.from('profiles').select('*')
+      // 2. Load all data in parallel for performance
+      const [
+        { data: profiles },
+        { data: dbProjects },
+        { data: dbMembers },
+        { data: dbSections },
+        { data: dbRoles },
+        { data: dbTasks },
+        { data: dbComments } // Fetch comments too
+      ] = await Promise.all([
+        supabase.from('profiles').select('*'),
+        supabase.from('projects').select('*'),
+        supabase.from('project_members').select('*'),
+        supabase.from('sections').select('*'),
+        supabase.from('project_roles').select('*'),
+        supabase.from('tasks').select('*'),
+        supabase.from('task_comments').select('*')
+      ])
+
+      // 3. Update local state
       if (profiles) {
         users.length = 0
         users.push(...profiles.map(p => ({
           ...p,
           surname: '', // Add if needed
           username: p.username || p.email?.split('@')[0] || 'User',
-          streak: 0, // TODO: Implement streak in DB
+          streak: 0,
           last_active: new Date().toISOString()
         } as ExtendedUser)))
       }
 
-      // 3. Load Projects
-      const { data: dbProjects } = await supabase.from('projects').select('*')
       if (dbProjects) {
         projects.length = 0
         projects.push(...dbProjects)
       }
 
-      // 4. Load Members
-      const { data: dbMembers } = await supabase.from('project_members').select('*')
       if (dbMembers) {
         members.length = 0
         members.push(...dbMembers)
       }
 
-      // 5. Load Sections
-      const { data: dbSections } = await supabase.from('sections').select('*')
       if (dbSections) {
         sections.length = 0
         sections.push(...dbSections)
       }
 
-      // 6. Load Project Roles
-      const { data: dbRoles } = await supabase.from('project_roles').select('*')
       if (dbRoles) {
         projectRoles.length = 0
         projectRoles.push(...dbRoles)
       }
 
-      // 7. Load Tasks (Cache for non-Column components)
-      const { data: dbTasks } = await supabase.from('tasks').select('*')
       if (dbTasks) {
         tasks.length = 0
         tasks.push(...dbTasks.map(t => ({
@@ -189,11 +197,23 @@ class Store {
         } as ExtendedTask)))
       }
 
+      if (dbComments) {
+        taskComments.length = 0
+        taskComments.push(...dbComments.map(c => ({
+          ...c,
+          user_name: 'User', // Placeholder, will be mapped in getter if needed or we can join
+          timestamp: c.timestamp || new Date().toISOString()
+        })))
+      }
+
       // Set current project
       if (currentUserId && projects.length > 0) {
         const myProjects = this.getMyProjects()
         if (myProjects.length > 0) {
-          this.currentProjectId = myProjects[0].id
+          // Only set if not already set, or if current is invalid
+          if (!this.currentProjectId || !myProjects.find(p => p.id === this.currentProjectId)) {
+            this.currentProjectId = myProjects[0].id
+          }
         }
       }
 
@@ -297,10 +317,15 @@ class Store {
   }
 
   async logout() {
-    await supabase.auth.signOut()
-    isAuthenticated = false
-    currentUserId = null
-    this.notify()
+    try {
+      await supabase.auth.signOut()
+    } catch (err) {
+      console.error('Logout failed', err)
+    } finally {
+      isAuthenticated = false
+      currentUserId = null
+      this.notify()
+    }
   }
 
   getCurrentUser(): ExtendedUser | null {
@@ -1271,6 +1296,8 @@ class Store {
     now.setHours(23, 59, 59, 999) // End of today
 
     let failedCount = 0
+    const tasksToUpdate: string[] = []
+
     tasks.forEach((t, i) => {
       if (
         t.project_id === projId &&
@@ -1283,11 +1310,24 @@ class Store {
         tasks[i].working_on_started = null
         tasks[i].updated_at = new Date().toISOString()
         failedCount++
+        tasksToUpdate.push(t.id)
       }
     })
 
     if (failedCount > 0) {
       this.notify()
+
+      // Supabase
+      Promise.all(tasksToUpdate.map(id =>
+        supabase.from('tasks').update({
+          status: 'FAILED',
+          working_on_by: [],
+          working_on_started: null
+        }).eq('id', id)
+      )).then(results => {
+        const errors = results.filter(r => r.error)
+        if (errors.length > 0) console.error('Failed to update expired tasks', errors)
+      })
     }
     return failedCount
   }

@@ -239,12 +239,23 @@ function ProfileCard({ member, onClose, style }: { member: { user_id: string; us
 export default function App() {
   const [isAuth, setIsAuth] = useState(false)
   const [showLogin, setShowLogin] = useState(true)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setIsAuth(store.isAuthenticated())
-    return store.subscribe(() => setIsAuth(store.isAuthenticated()))
+    const init = async () => {
+      await store.sync()
+      setIsAuth(store.isAuthenticated())
+      setLoading(false)
+    }
+    init()
+
+    return store.subscribe(() => {
+      setIsAuth(store.isAuthenticated())
+      setLoading(false)
+    })
   }, [])
 
+  if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#080c14', color: '#64748b' }}>Loading...</div>
   if (!isAuth) return showLogin ? <LoginPage onSwitch={() => setShowLogin(false)} /> : <RegisterPage onSwitch={() => setShowLogin(true)} />
   return <Dashboard />
 }
@@ -265,7 +276,12 @@ function LoginPage({ onSwitch }: { onSwitch: () => void }) {
         <h1 style={{ fontSize: 28, fontWeight: 600, color: theme.text.primary, marginBottom: 8, letterSpacing: '-0.03em' }}>Welcome back</h1>
         <p style={{ color: theme.text.muted, marginBottom: 32, fontSize: 14 }}>Sign in to your workspace</p>
         {error && <div style={{ backgroundColor: theme.status.high.bg, borderRadius: theme.radius.sm, padding: '10px 14px', marginBottom: 20, color: theme.status.high.text, fontSize: 13 }}>{error}</div>}
-        <form onSubmit={e => { e.preventDefault(); if (!store.login(email, password)) setError('Invalid email or password') }}>
+        <form onSubmit={async e => {
+          e.preventDefault()
+          setError('')
+          const user = await store.login(email, password)
+          if (!user) setError('Invalid email or password')
+        }}>
           <div style={{ marginBottom: 16 }}>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: theme.text.secondary, marginBottom: 8 }}>Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.com" style={inputStyle} required />
@@ -286,7 +302,38 @@ function LoginPage({ onSwitch }: { onSwitch: () => void }) {
 
 function RegisterPage({ onSwitch }: { onSwitch: () => void }) {
   const [form, setForm] = useState({ name: '', surname: '', username: '', email: '', password: '' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const lastSubmitRef = useRef<number>(0)
   const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Prevent rapid submissions (2 second cooldown)
+    const now = Date.now()
+    if (now - lastSubmitRef.current < 2000) {
+      setError('Please wait a moment before trying again')
+      return
+    }
+    lastSubmitRef.current = now
+
+    // Client-side validation
+    if (form.password.length < 6) {
+      setError('Password should be at least 6 characters')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    const result = await store.register(form.name, form.surname, form.username, form.email, form.password)
+
+    if (!result) {
+      setError('Registration failed. Please try again.')
+    }
+    setLoading(false)
+  }
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: theme.bg.base, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', -apple-system, sans-serif" }}>
@@ -297,15 +344,18 @@ function RegisterPage({ onSwitch }: { onSwitch: () => void }) {
         </div>
         <h1 style={{ fontSize: 28, fontWeight: 600, color: theme.text.primary, marginBottom: 8, letterSpacing: '-0.03em' }}>Create account</h1>
         <p style={{ color: theme.text.muted, marginBottom: 32, fontSize: 14 }}>Start managing your team</p>
-        <form onSubmit={e => { e.preventDefault(); store.register(form.name, form.surname, form.username, form.email, form.password) }}>
+        {error && <div style={{ backgroundColor: theme.status.high.bg, borderRadius: theme.radius.sm, padding: '10px 14px', marginBottom: 20, color: theme.status.high.text, fontSize: 13 }}>{error}</div>}
+        <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-            <input type="text" value={form.name} onChange={e => update('name', e.target.value)} placeholder="First name" style={inputStyle} required />
-            <input type="text" value={form.surname} onChange={e => update('surname', e.target.value)} placeholder="Last name" style={inputStyle} required />
+            <input type="text" value={form.name} onChange={e => update('name', e.target.value)} placeholder="First name" style={inputStyle} required disabled={loading} />
+            <input type="text" value={form.surname} onChange={e => update('surname', e.target.value)} placeholder="Last name" style={inputStyle} required disabled={loading} />
           </div>
-          <input type="text" value={form.username} onChange={e => update('username', e.target.value)} placeholder="Username" style={{ ...inputStyle, marginBottom: 16 }} required />
-          <input type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="Email" style={{ ...inputStyle, marginBottom: 16 }} required />
-          <input type="password" value={form.password} onChange={e => update('password', e.target.value)} placeholder="Password" style={{ ...inputStyle, marginBottom: 24 }} required />
-          <button type="submit" style={btnPrimary}>Create account</button>
+          <input type="text" value={form.username} onChange={e => update('username', e.target.value)} placeholder="Username" style={{ ...inputStyle, marginBottom: 16 }} required disabled={loading} />
+          <input type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="Email" style={{ ...inputStyle, marginBottom: 16 }} required disabled={loading} />
+          <input type="password" value={form.password} onChange={e => update('password', e.target.value)} placeholder="Password (min 6 characters)" style={{ ...inputStyle, marginBottom: 24 }} required disabled={loading} />
+          <button type="submit" disabled={loading} style={{ ...btnPrimary, opacity: loading ? 0.6 : 1 }}>
+            {loading ? 'Creating...' : 'Create account'}
+          </button>
         </form>
         <p style={{ textAlign: 'center', marginTop: 32, color: theme.text.muted, fontSize: 13 }}>
           Already have an account? <button onClick={onSwitch} style={{ background: 'none', border: 'none', color: theme.accent.primary, cursor: 'pointer', fontWeight: 500 }}>Sign in</button>
@@ -578,39 +628,8 @@ function EmptyProject({ onCreate, onJoin }: { onCreate: () => void; onJoin: () =
 
 // ============ COLUMN ============
 function Column({ section, isOwner, onTaskClick, onAddTask, onEditSection, refresh, showConfirm, onMemberClick }: { section: Section; isOwner: boolean; onTaskClick: (t: ExtendedTask) => void; onAddTask: () => void; onEditSection: () => void; refresh: number; showConfirm: (dialog: { title: string; message: string; onConfirm: () => void } | null) => void; onMemberClick: (userId: string) => void }) {
-  const [tasks, setTasks] = useState<(ExtendedTask & { assignees: (ExtendedUser & { role_titles: string[] })[] })[]>([])
+  const tasks = store.getTasks(section.id)
   const canEdit = store.canEditSection(section.id)
-
-  useEffect(() => {
-    // Fetch tasks directly from Supabase as requested
-    const fetchTasks = async () => {
-      const { data } = await supabase.from('tasks').select('*').eq('section_id', section.id)
-
-      if (data) {
-        // Map raw tasks to extended tasks with assignees
-        const extendedTasks = data.map((t: any) => {
-          const membersList = store.getProjectMembers()
-          const assignees = (t.assigned_to_list || [])
-            .map((uid: string) => {
-              const m = membersList.find(mem => mem.user_id === uid)
-              return m ? { ...m.user, role_titles: m.role_titles } : null
-            })
-            .filter(Boolean)
-
-          return {
-            ...t,
-            assignees
-          }
-        })
-        setTasks(extendedTasks)
-      }
-    }
-
-    fetchTasks()
-
-    // Subscribe to realtime changes? 
-    // Or simpler: trigger re-fetch on refresh signal (which happens when store.notify is called)
-  }, [section.id, refresh])
 
   const toggleTask = (id: string, e: React.MouseEvent) => {
     e.stopPropagation()

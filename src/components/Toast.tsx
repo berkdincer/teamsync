@@ -141,11 +141,11 @@ function ToastContainer({ toasts, removeToast }: { toasts: Toast[]; removeToast:
         <div
             style={{
                 position: 'fixed',
-                top: '24px',
+                bottom: '24px',
                 right: '24px',
                 zIndex: 2147483647,
                 display: 'flex',
-                flexDirection: 'column',
+                flexDirection: 'column-reverse',
                 gap: '12px',
                 pointerEvents: 'auto',
             }}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, User, ArrowRight, Github } from 'lucide-react'
 import { supabase, isConfigured } from '@/lib/supabaseClient'
@@ -14,9 +14,19 @@ export default function AuthPage() {
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [loading, setLoading] = useState(false)
+  const lastSubmitRef = useRef<number>(0)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Prevent rapid submissions (2 second cooldown)
+    const now = Date.now()
+    if (now - lastSubmitRef.current < 2000) {
+      showToast('Please wait a moment before trying again', 'warning')
+      return
+    }
+    lastSubmitRef.current = now
+
     console.log('Form Submitted, Default Prevented')
     console.log('Button Clicked')
     setLoading(true)
@@ -36,7 +46,12 @@ export default function AuthPage() {
         })
 
         if (error) {
-          showToast('Login failed: ' + error.message, 'error')
+          // Check for rate limit error
+          if (error.message.toLowerCase().includes('rate') || error.status === 429) {
+            showToast('Too many attempts. Please wait a minute and try again.', 'error')
+          } else {
+            showToast('Login failed: ' + error.message, 'error')
+          }
           setLoading(false)
           return
         }
@@ -60,7 +75,14 @@ export default function AuthPage() {
         })
 
         if (error) {
-          showToast('Registration failed: ' + error.message, 'error')
+          // Check for rate limit error
+          if (error.message.toLowerCase().includes('rate') || error.status === 429) {
+            showToast('Too many attempts. Please wait a minute and try again.', 'error')
+          } else if (error.message.includes('already registered')) {
+            showToast('This email is already registered. Try logging in instead.', 'error')
+          } else {
+            showToast('Registration failed: ' + error.message, 'error')
+          }
           setLoading(false)
           return
         }
