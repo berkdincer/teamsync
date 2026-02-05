@@ -1007,6 +1007,7 @@ function TaskDetailModal({ task, onClose, showConfirm }: { task: ExtendedTask; o
     const update = () => {
       const t = store.getTask(task.id)
       if (t) setLiveTask({ ...t })
+      setComments(store.getTaskComments(task.id))
     }
     update() // Initial fetch
     return store.subscribe(update)
