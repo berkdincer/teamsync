@@ -65,7 +65,6 @@ TeamSync is a simplified task management platform designed for small project tea
 
 ## 📁 Project Structure
 
-```
 teamsync/
 ├── src/
 │   ├── app/
@@ -73,13 +72,9 @@ teamsync/
 │   │   ├── invite/[code]/      # Invite link handler
 │   │   ├── globals.css         # Global styles
 │   │   ├── layout.tsx          # Root layout
-│   │   └── page.tsx            # Main dashboard
-│   ├── components/
-│   │   ├── Header.tsx          # Navigation header
-│   │   ├── TaskCard.tsx        # Task card component
-│   │   └── TaskModal.tsx       # Task edit modal
+│   │   └── page.tsx            # Main dashboard (Dashboard, TaskModal, etc.)
 │   ├── lib/
-│   │   ├── store.ts            # Local state store (demo)
+│   │   ├── store.ts            # Local state store
 │   │   └── supabase/           # Supabase client
 │   └── types/
 │       └── database.ts         # TypeScript types
