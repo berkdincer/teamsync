@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 // Toast types
 type ToastType = 'success' | 'error' | 'info' | 'warning'
@@ -9,7 +10,6 @@ interface Toast {
     id: string
     message: string
     type: ToastType
-    visible: boolean
 }
 
 interface ToastContextType {
@@ -21,7 +21,8 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined)
 export function useToast() {
     const context = useContext(ToastContext)
     if (!context) {
-        throw new Error('useToast must be used within a ToastProvider')
+        // Return a no-op function if not wrapped (prevents errors during SSR)
+        return { showToast: (msg: string, type?: ToastType) => console.log('[Toast fallback]', msg, type) }
     }
     return context
 }
@@ -56,14 +57,6 @@ const toastStyles: Record<ToastType, { bg: string; border: string; text: string;
 
 function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) {
     const style = toastStyles[toast.type]
-    const [mounted, setMounted] = useState(false)
-
-    useEffect(() => {
-        // Trigger animation after mount
-        requestAnimationFrame(() => {
-            setMounted(true)
-        })
-    }, [])
 
     return (
         <div
@@ -78,9 +71,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
                 boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
                 maxWidth: '380px',
                 minWidth: '280px',
-                opacity: mounted && toast.visible ? 1 : 0,
-                transform: mounted && toast.visible ? 'translateX(0)' : 'translateX(100px)',
-                transition: 'all 0.3s ease-out',
+                animation: 'toastSlideIn 0.3s ease-out forwards',
             }}
         >
             <span style={{
@@ -117,60 +108,85 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
     )
 }
 
+function ToastContainer({ toasts, removeToast }: { toasts: Toast[]; removeToast: (id: string) => void }) {
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+
+        // Add keyframes to document
+        const styleId = 'toast-keyframes'
+        if (!document.getElementById(styleId)) {
+            const style = document.createElement('style')
+            style.id = styleId
+            style.textContent = `
+                @keyframes toastSlideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+            `
+            document.head.appendChild(style)
+        }
+    }, [])
+
+    if (!mounted) return null
+
+    return createPortal(
+        <div
+            style={{
+                position: 'fixed',
+                top: '24px',
+                right: '24px',
+                zIndex: 2147483647,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                pointerEvents: 'auto',
+            }}
+        >
+            {toasts.map(toast => (
+                <ToastItem
+                    key={toast.id}
+                    toast={toast}
+                    onRemove={() => removeToast(toast.id)}
+                />
+            ))}
+        </div>,
+        document.body
+    )
+}
+
 export function ToastProvider({ children }: { children: ReactNode }) {
     const [toasts, setToasts] = useState<Toast[]>([])
 
     const showToast = useCallback((message: string, type: ToastType = 'info') => {
         const id = Math.random().toString(36).substring(2, 9)
-        const newToast: Toast = { id, message, type, visible: true }
+        const newToast: Toast = { id, message, type }
 
-        console.log('[Toast] Showing:', message, type) // Debug log
+        console.log('[Toast] Adding:', message, type)
 
         setToasts(prev => [...prev, newToast])
 
         // Auto remove after 4 seconds
         setTimeout(() => {
-            setToasts(prev => prev.map(t => t.id === id ? { ...t, visible: false } : t))
-            // Actually remove after fade out animation
-            setTimeout(() => {
-                setToasts(prev => prev.filter(t => t.id !== id))
-            }, 300)
+            setToasts(prev => prev.filter(t => t.id !== id))
         }, 4000)
     }, [])
 
     const removeToast = useCallback((id: string) => {
-        setToasts(prev => prev.map(t => t.id === id ? { ...t, visible: false } : t))
-        setTimeout(() => {
-            setToasts(prev => prev.filter(t => t.id !== id))
-        }, 300)
+        setToasts(prev => prev.filter(t => t.id !== id))
     }, [])
 
     return (
         <ToastContext.Provider value={{ showToast }}>
             {children}
-
-            {/* Toast Container - Fixed position, high z-index */}
-            <div
-                id="toast-container"
-                style={{
-                    position: 'fixed',
-                    top: '24px',
-                    right: '24px',
-                    zIndex: 999999,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                    pointerEvents: 'auto',
-                }}
-            >
-                {toasts.map(toast => (
-                    <ToastItem
-                        key={toast.id}
-                        toast={toast}
-                        onRemove={() => removeToast(toast.id)}
-                    />
-                ))}
-            </div>
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
         </ToastContext.Provider>
     )
 }

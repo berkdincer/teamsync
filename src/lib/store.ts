@@ -634,22 +634,28 @@ class Store {
     this.currentProjectId = project.id
     this.notify()
 
-    // Supabase
-    // 1. Create Project
-    supabase.from('projects').insert(project).then(({ error }) => {
-      if (error) console.error('Create project failed', error)
-      else {
+    // Supabase - with detailed logging
+    console.log('[Supabase] Creating project:', project)
+    supabase.from('projects').insert(project).then(({ data, error }) => {
+      if (error) {
+        console.error('[Supabase] Create project failed:', error.message, error.details, error.hint, error)
+      } else {
+        console.log('[Supabase] Project created successfully:', data)
         // 2. Create Default Roles
-        supabase.from('project_roles').insert([ownerRole, memberRole]).then(() => {
-          // 3. Add Creator as Member
-          supabase.from('project_members').insert({
-            project_id: project.id,
-            user_id: currentUserId!,
-            role_titles: ['Owner'],
-            joined_at: new Date().toISOString()
-          }).then(({ error: memError }) => {
-            if (memError) console.error('Add creator member failed', memError)
-          })
+        supabase.from('project_roles').insert([ownerRole, memberRole]).then(({ error: roleError }) => {
+          if (roleError) console.error('[Supabase] Create roles failed:', roleError.message, roleError)
+          else {
+            // 3. Add Creator as Member
+            supabase.from('project_members').insert({
+              project_id: project.id,
+              user_id: currentUserId!,
+              role_titles: ['Owner'],
+              joined_at: new Date().toISOString()
+            }).then(({ error: memError }) => {
+              if (memError) console.error('[Supabase] Add creator member failed:', memError.message, memError)
+              else console.log('[Supabase] Member added successfully')
+            })
+          }
         })
       }
     })
