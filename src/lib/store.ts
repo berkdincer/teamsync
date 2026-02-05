@@ -113,12 +113,79 @@ class Store {
   private listeners: Set<() => void> = new Set()
   private currentProjectId: string | null = null
 
+  constructor() {
+    if (typeof window !== 'undefined') {
+      this.load()
+    }
+  }
+
+  // ============ PERSISTENCE ============
+  private save() {
+    if (typeof window === 'undefined') return
+    const data = {
+      users,
+      projects,
+      members,
+      sections,
+      tasks,
+      taskComments,
+      projectRoles,
+      currentUserId,
+      isAuthenticated,
+      isDarkMode
+    }
+    localStorage.setItem('teamsync_db', JSON.stringify(data))
+  }
+
+  private load() {
+    if (typeof window === 'undefined') return
+    const raw = localStorage.getItem('teamsync_db')
+    if (!raw) return
+
+    try {
+      const data = JSON.parse(raw)
+
+      const restore = (target: any[], source: any[]) => {
+        target.length = 0
+        if (Array.isArray(source)) {
+          target.push(...source)
+        }
+      }
+
+      restore(users, data.users)
+      restore(projects, data.projects)
+      restore(members, data.members)
+      restore(sections, data.sections)
+      restore(tasks, data.tasks)
+      restore(taskComments, data.taskComments)
+      restore(projectRoles, data.projectRoles)
+
+      if (data.currentUserId) currentUserId = data.currentUserId
+      if (typeof data.isAuthenticated === 'boolean') isAuthenticated = data.isAuthenticated
+      if (typeof data.isDarkMode === 'boolean') isDarkMode = data.isDarkMode
+
+      this.currentProjectId = data.projects && data.projects.length > 0 ? data.projects[0].id : null
+      // Try to restore current project based on membership or last active? 
+      // Simplified: just select the first one if we have one
+      if (currentUserId && projects.length > 0) {
+        const myProjects = this.getMyProjects()
+        if (myProjects.length > 0) {
+          this.currentProjectId = myProjects[0].id
+        }
+      }
+
+    } catch (e) {
+      console.error('Failed to load data', e)
+    }
+  }
+
   subscribe(callback: () => void) {
     this.listeners.add(callback)
     return () => { this.listeners.delete(callback) }
   }
 
   private notify() {
+    this.save()
     this.listeners.forEach(cb => cb())
   }
 
@@ -967,5 +1034,39 @@ class Store {
 
 export const store = new Store()
 
-// Auto-login for demo
-store.login('berk@teamsync.io', 'demo')
+// Initialize demo data if empty
+if (typeof window !== 'undefined' && (!store.getUsers() || store.getUsers().length === 0)) {
+  const user = store.register('Berk', 'Dincer', 'berk', 'berk@teamsync.io', 'demo')
+
+  // Create a demo project
+  const project = store.createProject('TeamSync Demo')
+
+  // Add some demo sections
+  store.createSection('Backlog', '#94a3b8', [])
+  const todo = store.createSection('To Do', '#3b82f6', [])
+  const progress = store.createSection('In Progress', '#f59e0b', [])
+  store.createSection('Done', '#22c55e', [])
+
+  // Add a demo task
+  store.createTask(todo.id, {
+    title: 'Welcome to TeamSync! 👋',
+    description: 'This is a demo task. Try dragging it, editing it, or checking it off!',
+    priority: 'HIGH',
+    status: 'ACTIVE',
+    assigned_to_list: [user.id],
+    deadline: new Date(Date.now() + 86400000).toISOString() // Tomorrow
+  })
+
+  // Add another task
+  store.createTask(progress.id, {
+    title: 'Invite your team',
+    description: 'Click the "Invite" button to get a code you can share.',
+    priority: 'MEDIUM',
+    status: 'ACTIVE',
+    assigned_to_list: [user.id]
+  })
+} else if (typeof window !== 'undefined') {
+  // Just notify to ensure UI is in sync with loaded data
+  // (notify is private, but we can trigger a benign update or just rely on the load having happened)
+  // Actually store.load() was called in constructor.
+}
