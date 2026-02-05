@@ -1175,6 +1175,16 @@ class Store {
     }
     tasks[idx].updated_at = new Date().toISOString()
     this.notify()
+
+    // Supabase
+    supabase.from('tasks').update({
+      working_on_by: tasks[idx].working_on_by,
+      working_on_started: tasks[idx].working_on_started,
+      updated_at: tasks[idx].updated_at
+    }).eq('id', taskId).then(({ error }) => {
+      if (error) console.error('Start working on failed', error)
+    })
+
     return true
   }
 
@@ -1193,6 +1203,16 @@ class Store {
     }
     tasks[idx].updated_at = new Date().toISOString()
     this.notify()
+
+    // Supabase
+    supabase.from('tasks').update({
+      working_on_by: tasks[idx].working_on_by,
+      working_on_started: tasks[idx].working_on_started,
+      updated_at: tasks[idx].updated_at
+    }).eq('id', taskId).then(({ error }) => {
+      if (error) console.error('Stop working on failed', error)
+    })
+
     return true
   }
 
