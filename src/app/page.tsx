@@ -263,7 +263,7 @@ function LoginPage({ onSwitch }: { onSwitch: () => void }) {
         <h1 style={{ fontSize: 28, fontWeight: 600, color: theme.text.primary, marginBottom: 8, letterSpacing: '-0.03em' }}>Welcome back</h1>
         <p style={{ color: theme.text.muted, marginBottom: 32, fontSize: 14 }}>Sign in to your workspace</p>
         {error && <div style={{ backgroundColor: theme.status.high.bg, borderRadius: theme.radius.sm, padding: '10px 14px', marginBottom: 20, color: theme.status.high.text, fontSize: 13 }}>{error}</div>}
-        <form onSubmit={e => { e.preventDefault(); if (!store.login(email, password)) setError('Invalid credentials. Try: berk@teamsync.io') }}>
+        <form onSubmit={e => { e.preventDefault(); if (!store.login(email, password)) setError('Invalid email or password') }}>
           <div style={{ marginBottom: 16 }}>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: theme.text.secondary, marginBottom: 8 }}>Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.com" style={inputStyle} required />
