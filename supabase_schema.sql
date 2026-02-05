@@ -203,6 +203,20 @@ create index if not exists idx_task_comments_task_id on task_comments(task_id);
 create index if not exists idx_project_roles_project_id on project_roles(project_id);
 
 
+
+-- ============================================
+-- 11. ENABLE REALTIME REPLICATION
+-- ============================================
+-- IMPORTANT: You must run this to enable real-time updates for comments
+begin;
+  -- remove the supabase_realtime publication
+  drop publication if exists supabase_realtime;
+  -- re-create the supabase_realtime publication with no tables
+  create publication supabase_realtime;
+commit;
+alter publication supabase_realtime add table task_comments;
+alter publication supabase_realtime add table tasks; -- Optional: for task updates too
+
 -- ============================================
 -- DONE!
 -- ============================================
