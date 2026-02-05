@@ -28,6 +28,8 @@ create table profiles (
   avatar_url text,
   website text,
   email text,
+  streak integer default 0,
+  last_active timestamp with time zone default timezone('utc'::text, now()),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

@@ -114,9 +114,62 @@ class Store {
   private listeners: Set<() => void> = new Set()
   private currentProjectId: string | null = null
 
+  // Multi-tab support
+  private tabId = Math.random().toString(36).substring(2, 9)
+  private broadcastChannel: BroadcastChannel | null = null
+  private visibilityHandlerSetup = false
+  private lastSessionCheck = 0
+  private readonly SESSION_CHECK_INTERVAL = 5000 // 5 seconds minimum between session checks
+
   constructor() {
     // Don't sync here - let React component control when to sync
     // This prevents race conditions with React lifecycle
+    this.setupMultiTabSupport()
+  }
+
+  // ============ MULTI-TAB SUPPORT ============
+  private setupMultiTabSupport() {
+    if (typeof window === 'undefined') return
+
+    // Setup BroadcastChannel for tab coordination
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        this.broadcastChannel = new BroadcastChannel('teamsync-sync')
+        this.broadcastChannel.onmessage = (event) => {
+          if (event.data.type === 'data-changed' && event.data.tabId !== this.tabId) {
+            console.log(`[Store] Tab ${this.tabId} received sync signal from tab ${event.data.tabId}`)
+            // Debounce: only sync if not already syncing
+            if (!this.isSyncing) {
+              setTimeout(() => this.sync(), 500) // Small delay to let DB settle
+            }
+          }
+        }
+        console.log(`[Store] BroadcastChannel setup for tab ${this.tabId}`)
+      } catch (e) {
+        console.warn('[Store] BroadcastChannel not available:', e)
+      }
+    }
+
+    // Setup visibility change handler
+    if (!this.visibilityHandlerSetup) {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && !this.isSyncing) {
+          console.log(`[Store] Tab ${this.tabId} became visible, refreshing data...`)
+          this.sync()
+        }
+      })
+      this.visibilityHandlerSetup = true
+    }
+  }
+
+  private notifyOtherTabs() {
+    if (this.broadcastChannel) {
+      try {
+        this.broadcastChannel.postMessage({ type: 'data-changed', tabId: this.tabId })
+      } catch (e) {
+        // Ignore broadcast errors
+      }
+    }
   }
 
   // ============ PERSISTENCE ============
@@ -137,25 +190,32 @@ class Store {
 
     try {
       // 1. Load User - First try getSession (faster, cached), then getUser as fallback
-      const { data: { session } } = await supabase.auth.getSession()
+      // Debounce session checks to prevent multiple tabs hammering the auth endpoint
+      const now = Date.now()
+      const shouldCheckSession = now - this.lastSessionCheck >= this.SESSION_CHECK_INTERVAL
 
-      if (session?.user) {
-        isAuthenticated = true
-        currentUserId = session.user.id
-        console.log('[Store] Session restored for:', session.user.email)
-      } else {
-        // Fallback to getUser for edge cases
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
+      if (shouldCheckSession) {
+        this.lastSessionCheck = now
+        const { data: { session } } = await supabase.auth.getSession()
+
+        if (session?.user) {
           isAuthenticated = true
-          currentUserId = user.id
-          console.log('[Store] User restored via getUser:', user.email)
+          currentUserId = session.user.id
+          console.log(`[Store] Tab ${this.tabId} session restored for:`, session.user.email)
         } else {
-          isAuthenticated = false
-          currentUserId = null
-          console.log('[Store] No active session found')
+          // Fallback to getUser for edge cases
+          const { data: { user } } = await supabase.auth.getUser()
+          if (user) {
+            isAuthenticated = true
+            currentUserId = user.id
+            console.log(`[Store] Tab ${this.tabId} user restored via getUser:`, user.email)
+          } else {
+            isAuthenticated = false
+            currentUserId = null
+            console.log(`[Store] Tab ${this.tabId} no active session found`)
+          }
         }
-      }
+      } // End of shouldCheckSession block - if skipped, we continue with cached auth state
 
       // 2. Load all data in parallel for performance
       const [
@@ -183,8 +243,8 @@ class Store {
           ...p,
           surname: '', // Add if needed
           username: p.username || p.email?.split('@')[0] || 'User',
-          streak: 0,
-          last_active: new Date().toISOString()
+          streak: p.streak || 0,
+          last_active: p.last_active || p.created_at || new Date().toISOString()
         } as ExtendedUser)))
       }
 
@@ -293,7 +353,8 @@ class Store {
     }
 
     try {
-      this.realtimeChannel = supabase.channel('task-comments-realtime')
+      // Use unique channel name per tab to prevent conflicts
+      this.realtimeChannel = supabase.channel(`comments-${this.tabId}`)
 
       this.realtimeChannel
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'task_comments' }, (payload) => {
@@ -358,9 +419,18 @@ class Store {
     return () => { this.listeners.delete(callback) }
   }
 
-  private notify() {
+  private notify(broadcast = false) {
     this.save()
     this.listeners.forEach(cb => cb())
+    // Notify other tabs if this was a data mutation
+    if (broadcast) {
+      this.notifyOtherTabs()
+    }
+  }
+
+  // Helper for data mutations that should sync across tabs
+  private notifyWithBroadcast() {
+    this.notify(true)
   }
 
   // ============ DARK MODE ============
@@ -468,7 +538,7 @@ class Store {
   }
 
   // ============ STREAK SYSTEM ============
-  updateStreak(userId: string) {
+  async updateStreak(userId: string) {
     const userIdx = users.findIndex(u => u.id === userId)
     if (userIdx === -1) return
 
@@ -477,22 +547,41 @@ class Store {
     const now = new Date()
 
     // Reset times to midnight for accurate day comparison
-    lastActive.setHours(0, 0, 0, 0)
-    now.setHours(0, 0, 0, 0)
+    const lastActiveDay = new Date(lastActive)
+    lastActiveDay.setHours(0, 0, 0, 0)
+    const todayDay = new Date(now)
+    todayDay.setHours(0, 0, 0, 0)
 
-    const diffDays = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24))
+    const diffDays = Math.floor((todayDay.getTime() - lastActiveDay.getTime()) / (1000 * 60 * 60 * 24))
 
+    let newStreak = user.streak
     if (diffDays === 0) {
-      // Same day - no change
+      // Same day - no change to streak, but update last_active time
     } else if (diffDays === 1) {
       // Consecutive day - increment streak
-      users[userIdx].streak += 1
+      newStreak = user.streak + 1
     } else {
-      // Missed days - reset streak to 0
-      users[userIdx].streak = 0
+      // Missed days - reset streak to 1 (they're back today)
+      newStreak = 1
     }
 
-    users[userIdx].last_active = new Date().toISOString()
+    const newLastActive = now.toISOString()
+
+    // Update local state
+    users[userIdx].streak = newStreak
+    users[userIdx].last_active = newLastActive
+
+    // Persist to Supabase
+    const { error } = await supabase
+      .from('profiles')
+      .update({ streak: newStreak, last_active: newLastActive })
+      .eq('id', userId)
+
+    if (error) {
+      console.error('[Store] Failed to update streak:', error)
+    } else {
+      console.log(`[Store] Updated streak for user ${userId}: streak=${newStreak}`)
+    }
   }
 
   isUserOnline(userId: string): boolean {
