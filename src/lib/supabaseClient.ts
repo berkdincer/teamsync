@@ -11,6 +11,13 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
 console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Loaded ✅' : 'Missing ❌');
 console.log('Supabase Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Loaded ✅' : 'Missing ❌');
 
+// Custom fetch that ignores abort signals to prevent AbortError
+const customFetch = (url: RequestInfo | URL, options?: RequestInit): Promise<Response> => {
+    // Remove the abort signal completely - requests will complete even during navigation
+    const { signal, ...restOptions } = options || {}
+    return fetch(url, restOptions)
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
         persistSession: true,
@@ -19,17 +26,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         detectSessionInUrl: true,
     },
     global: {
-        fetch: async (url, options = {}) => {
-            try {
-                return await fetch(url, options)
-            } catch (error: any) {
-                // Log AbortError but still throw it so retry logic can work
-                if (error?.name === 'AbortError') {
-                    console.log('[Supabase] Request aborted')
-                }
-                throw error
-            }
-        }
+        fetch: customFetch
     },
     realtime: {
         params: {
@@ -38,3 +35,4 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     }
 })
 export const isConfigured = !!process.env.NEXT_PUBLIC_SUPABASE_URL
+
