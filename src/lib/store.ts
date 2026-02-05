@@ -199,11 +199,14 @@ class Store {
 
       if (dbComments) {
         taskComments.length = 0
-        taskComments.push(...dbComments.map(c => ({
-          ...c,
-          user_name: 'User', // Placeholder, will be mapped in getter if needed or we can join
-          timestamp: c.timestamp || new Date().toISOString()
-        })))
+        taskComments.push(...dbComments.map(c => {
+          const author = users.find(u => u.id === c.user_id)
+          return {
+            ...c,
+            user_name: author ? author.full_name : (c.user_name || 'Unknown User'),
+            timestamp: c.timestamp || new Date().toISOString()
+          }
+        }))
       }
 
       // Set current project
