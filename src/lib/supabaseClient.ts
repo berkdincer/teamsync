@@ -23,14 +23,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
             try {
                 return await fetch(url, options)
             } catch (error: any) {
-                // Silently handle AbortError - these are expected during navigation/refresh
+                // Log AbortError but still throw it so retry logic can work
                 if (error?.name === 'AbortError') {
-                    console.log('[Supabase] Request aborted (expected during navigation)')
-                    // Return an empty response to prevent cascading errors
-                    return new Response(JSON.stringify({}), {
-                        status: 200,
-                        headers: { 'Content-Type': 'application/json' }
-                    })
+                    console.log('[Supabase] Request aborted')
                 }
                 throw error
             }

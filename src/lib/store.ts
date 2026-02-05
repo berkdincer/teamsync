@@ -122,7 +122,10 @@ class Store {
 
   // ============ PERSISTENCE ============
   // Sync with Supabase
-  async sync() {
+  private syncRetryCount = 0
+  private maxSyncRetries = 3
+
+  async sync(isRetry = false) {
     if (typeof window === 'undefined') return
 
     try {
@@ -231,14 +234,27 @@ class Store {
         }
       }
 
+      // Reset retry count on success
+      this.syncRetryCount = 0
       this.notify()
 
       // Initialize Realtime Subscription
       this.initRealtime()
     } catch (e: any) {
-      // Ignore AbortError - these are expected during navigation/refresh
+      // Handle AbortError - retry after a delay
       if (e?.name === 'AbortError' || e?.message?.includes('aborted')) {
         console.log('[Store] Sync aborted (expected during navigation)')
+
+        // Schedule a retry if we haven't exceeded max retries
+        if (this.syncRetryCount < this.maxSyncRetries) {
+          this.syncRetryCount++
+          const delay = 2000 * this.syncRetryCount // 2s, 4s, 6s
+          console.log(`[Store] Scheduling retry ${this.syncRetryCount}/${this.maxSyncRetries} in ${delay}ms`)
+          setTimeout(() => this.sync(true), delay)
+        } else {
+          console.error('[Store] Max sync retries reached')
+          this.syncRetryCount = 0
+        }
         return
       }
       console.error('Failed to sync with Supabase', e)
