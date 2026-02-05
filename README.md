@@ -65,6 +65,7 @@ TeamSync is a simplified task management platform designed for small project tea
 
 ## 📁 Project Structure
 
+```
 teamsync/
 ├── src/
 │   ├── app/
