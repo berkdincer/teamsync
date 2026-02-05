@@ -211,7 +211,7 @@ export default function AuthPage() {
           </div>
 
           <p className="text-center text-white/30 text-xs mt-6">
-            By continuing, you agree to TeamSync's Terms of Service and Privacy Policy
+            By continuing, you agree to TeamSync&apos;s Terms of Service and Privacy Policy
           </p>
         </div>
       </div>

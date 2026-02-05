@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable @next/next/no-img-element */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { store, Section, ExtendedTask, ExtendedUser, DEFAULT_ROLE_TEMPLATES, TaskComment, ProjectRole, RolePermissions, DEFAULT_PERMISSIONS } from '@/lib/store'
@@ -345,7 +346,7 @@ function Dashboard() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const copyInvite = async () => {
     const code = store.getInviteCode()
