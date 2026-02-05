@@ -28,19 +28,17 @@ create table profiles (
   avatar_url text,
   website text,
   email text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  
-  constraint username_length check (char_length(username) >= 3)
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 
 -- ============================================
--- 2. PROJECTS TABLE (without RLS that depends on project_members)
+-- 2. PROJECTS TABLE
 -- ============================================
 create table projects (
-  id uuid default gen_random_uuid() primary key,
+  id text primary key,
   name text not null,
-  invite_code text unique default substring(gen_random_uuid()::text, 1, 5),
+  invite_code text unique,
   created_by uuid references auth.users not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -50,7 +48,7 @@ create table projects (
 -- 3. PROJECT MEMBERS TABLE
 -- ============================================
 create table project_members (
-  project_id uuid references projects on delete cascade,
+  project_id text references projects(id) on delete cascade,
   user_id uuid references profiles(id) on delete cascade,
   role_titles text[] default array['Member'],
   joined_at timestamp with time zone default timezone('utc'::text, now()) not null,
@@ -62,8 +60,8 @@ create table project_members (
 -- 4. PROJECT ROLES TABLE
 -- ============================================
 create table project_roles (
-  id uuid default gen_random_uuid() primary key,
-  project_id uuid references projects on delete cascade,
+  id text primary key,
+  project_id text references projects(id) on delete cascade,
   name text not null,
   color text default '#3b82f6',
   permissions jsonb default '{}'::jsonb,
@@ -75,8 +73,8 @@ create table project_roles (
 -- 5. SECTIONS TABLE
 -- ============================================
 create table sections (
-  id uuid default gen_random_uuid() primary key,
-  project_id uuid references projects on delete cascade,
+  id text primary key,
+  project_id text references projects(id) on delete cascade,
   name text not null,
   color text default '#94a3b8',
   "order" integer not null default 0,
@@ -89,9 +87,9 @@ create table sections (
 -- 6. TASKS TABLE
 -- ============================================
 create table tasks (
-  id uuid default gen_random_uuid() primary key,
-  project_id uuid references projects on delete cascade,
-  section_id uuid references sections on delete cascade,
+  id text primary key,
+  project_id text references projects(id) on delete cascade,
+  section_id text references sections(id) on delete cascade,
   title text not null,
   description text,
   status text default 'ACTIVE',
@@ -99,8 +97,8 @@ create table tasks (
   due_date timestamp with time zone,
   deadline timestamp with time zone,
   assigned_to uuid references profiles(id),
-  assigned_to_list uuid[] default array[]::uuid[],
-  working_on_by uuid[] default array[]::uuid[],
+  assigned_to_list text[] default array[]::text[],
+  working_on_by text[] default array[]::text[],
   working_on_started timestamp with time zone,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
@@ -111,8 +109,8 @@ create table tasks (
 -- 7. TASK COMMENTS TABLE
 -- ============================================
 create table task_comments (
-  id uuid default gen_random_uuid() primary key,
-  task_id uuid references tasks on delete cascade,
+  id text primary key,
+  task_id text references tasks(id) on delete cascade,
   user_id uuid references profiles(id),
   user_name text,
   text text not null,
@@ -159,7 +157,7 @@ create policy "Users can insert their own profile." on profiles
 create policy "Users can update own profile." on profiles
   for update using (auth.uid() = id);
 
--- Projects RLS (now project_members exists)
+-- Projects RLS
 alter table projects enable row level security;
 
 create policy "Projects are viewable by members" on projects
