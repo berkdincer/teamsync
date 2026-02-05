@@ -126,14 +126,25 @@ class Store {
     if (typeof window === 'undefined') return
 
     try {
-      // 1. Load User
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+      // 1. Load User - First try getSession (faster, cached), then getUser as fallback
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (session?.user) {
         isAuthenticated = true
-        currentUserId = user.id
+        currentUserId = session.user.id
+        console.log('[Store] Session restored for:', session.user.email)
       } else {
-        isAuthenticated = false
-        currentUserId = null
+        // Fallback to getUser for edge cases
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          isAuthenticated = true
+          currentUserId = user.id
+          console.log('[Store] User restored via getUser:', user.email)
+        } else {
+          isAuthenticated = false
+          currentUserId = null
+          console.log('[Store] No active session found')
+        }
       }
 
       // 2. Load all data in parallel for performance
