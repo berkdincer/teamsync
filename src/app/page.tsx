@@ -1405,7 +1405,7 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
                         <div style={{ fontSize: 11, color: theme.text.faint }}>@{m.user.username}</div>
                       </div>
                     </button>
-                    {store.canCurrentUserEditRoles() && editing === m.user_id && !creator ? (
+                    {store.canCurrentUserEditRoles() && editing === m.user_id ? (
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', maxWidth: 180 }}>
                         {projectRoles.map(r => {
                           const hasRole = m.role_titles.includes(r.name)
@@ -1423,7 +1423,7 @@ function MembersModal({ members, isOwner, onClose, showConfirm }: { members: (Pr
                       </div>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <button onClick={(e) => { e.stopPropagation(); store.canCurrentUserEditRoles() && !creator && setEditing(m.user_id) }} style={{ fontSize: 11, fontWeight: 500, color: m.role_titles.length > 0 ? theme.accent.primary : theme.text.faint, backgroundColor: m.role_titles.length > 0 ? theme.accent.muted : theme.bg.surface, padding: '5px 10px', borderRadius: 6, border: 'none', cursor: store.canCurrentUserEditRoles() && !creator ? 'pointer' : 'default' }}>{m.role_titles.length > 0 ? m.role_titles.join(', ') : 'No roles'}</button>
+                        <button onClick={(e) => { e.stopPropagation(); store.canCurrentUserEditRoles() && setEditing(m.user_id) }} style={{ fontSize: 11, fontWeight: 500, color: m.role_titles.length > 0 ? theme.accent.primary : theme.text.faint, backgroundColor: m.role_titles.length > 0 ? theme.accent.muted : theme.bg.surface, padding: '5px 10px', borderRadius: 6, border: 'none', cursor: store.canCurrentUserEditRoles() ? 'pointer' : 'default' }}>{m.role_titles.length > 0 ? m.role_titles.join(', ') : (creator ? '👑 Creator' : 'No roles')}</button>
                         {/* Remove member button - needs can_delete_member permission, can't remove creator */}
                         {store.canCurrentUserDeleteMember() && !creator && (
                           <button onClick={(e) => { e.stopPropagation(); removeMember(m.user_id, m.user.full_name) }} style={{ background: 'none', border: 'none', color: theme.status.high.text, cursor: 'pointer', padding: 4, opacity: 0.7, fontSize: 12 }} title="Remove from team">
