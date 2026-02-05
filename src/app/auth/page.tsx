@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, User, ArrowRight, Github } from 'lucide-react'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -14,22 +15,94 @@ export default function AuthPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Button Clicked')
     setLoading(true)
 
-    // Simulate auth - in production, this would call Supabase Auth
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    try {
+      if (isLogin) {
+        console.log('Starting Supabase Login Request...')
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        })
 
-    // Redirect to dashboard
-    router.push('/')
-    setLoading(false)
+        if (error) {
+          alert('Supabase Error: ' + error.message)
+          setLoading(false)
+          return
+        }
+
+        if (data.user) {
+          // alert('Success! Logged in: ' + data.user.email)
+          router.push('/')
+        }
+      } else {
+        // REGISTER
+        console.log('Starting Supabase Register Request...')
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              username: email.split('@')[0]
+            }
+          }
+        })
+
+        if (error) {
+          alert('Supabase Error: ' + error.message)
+          setLoading(false)
+          return
+        }
+
+        if (data.user) {
+          alert('Success! User created: ' + data.user.email)
+
+          // Manual Profile Creation (Backup)
+          console.log('Attempting manual profile insertion...')
+          const { error: profileError } = await supabase.from('profiles').insert({
+            id: data.user.id,
+            email: email,
+            full_name: fullName,
+            created_at: new Date().toISOString()
+          })
+
+          if (profileError) {
+            console.error('Manual profile insert failed:', profileError)
+            alert('Warning: Profile creation failed but user exists. Error: ' + profileError.message)
+          } else {
+            console.log('Manual profile insert success')
+          }
+
+          router.push('/')
+        }
+      }
+    } catch (error: any) {
+      console.error('System/Network Error:', error)
+      alert('System Error: ' + error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoogleAuth = async () => {
     setLoading(true)
-    // Simulate Google auth
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/')
-    setLoading(false)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      if (error) {
+        alert('Google Auth Error: ' + error.message)
+      }
+    } catch (error: any) {
+      alert('System Error during Google Auth: ' + error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
