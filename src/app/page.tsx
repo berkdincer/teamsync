@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { store, Section, ExtendedTask, ExtendedUser, DEFAULT_ROLE_TEMPLATES, TaskComment, ProjectRole, RolePermissions, DEFAULT_PERMISSIONS } from '@/lib/store'
 import type { Project, Priority, TaskStatus, ProjectMember } from '@/types/database'
 import { supabase } from '@/lib/supabaseClient'
+import { useToast } from '@/components/Toast'
 import confetti from 'canvas-confetti'
 
 // ============ PREMIUM DESIGN TOKENS ============
@@ -316,6 +317,7 @@ function RegisterPage({ onSwitch }: { onSwitch: () => void }) {
 
 // ============ DASHBOARD ============
 function Dashboard() {
+  const { showToast } = useToast()
   const [currentUser, setCurrentUser] = useState<ExtendedUser | null>(null)
   const [projects, setProjects] = useState<(Project & { role: string; isOwner: boolean })[]>([])
   const [currentProject, setCurrentProject] = useState<(Project & { role: string; isOwner: boolean }) | null>(null)
@@ -460,12 +462,12 @@ function Dashboard() {
       </main>
 
       {/* ========== MODALS ========== */}
-      {modals.newProject && <NewProjectModal onClose={() => closeModal('newProject')} />}
-      {modals.newSection && <NewSectionModal onClose={() => closeModal('newSection')} />}
+      {modals.newProject && <NewProjectModal onClose={() => closeModal('newProject')} showToast={showToast} />}
+      {modals.newSection && <NewSectionModal onClose={() => closeModal('newSection')} showToast={showToast} />}
       {modals.members && <MembersModal members={members} isOwner={currentProject?.isOwner || false} onClose={() => closeModal('members')} showConfirm={setConfirmDialog} />}
-      {modals.join && <JoinModal onClose={() => closeModal('join')} />}
+      {modals.join && <JoinModal onClose={() => closeModal('join')} showToast={showToast} />}
       {modals.task && <TaskDetailModal task={modals.task} onClose={() => closeModal('task')} showConfirm={setConfirmDialog} />}
-      {modals.addTask && <AddTaskModal sectionId={modals.addTask} onClose={() => closeModal('addTask')} />}
+      {modals.addTask && <AddTaskModal sectionId={modals.addTask} onClose={() => closeModal('addTask')} showToast={showToast} />}
       {modals.editSection && <EditSectionModal section={modals.editSection} onClose={() => closeModal('editSection')} />}
       {modals.search && <SearchModal onClose={() => closeModal('search')} onSelectTask={t => { closeModal('search'); openModal('task', t) }} />}
       {modals.memberProfile && <MemberProfileModal userId={modals.memberProfile} onClose={() => closeModal('memberProfile')} />}
@@ -883,7 +885,7 @@ function Modal({ title, children, onClose, wide }: { title: string; children: Re
   )
 }
 
-function AddTaskModal({ sectionId, onClose }: { sectionId: string; onClose: () => void }) {
+function AddTaskModal({ sectionId, onClose, showToast }: { sectionId: string; onClose: () => void; showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
   const [form, setForm] = useState({ title: '', description: '', priority: 'MEDIUM' as Priority, deadline: '', assignees: [] as string[] })
   const members = store.getProjectMembers()
 
@@ -893,6 +895,7 @@ function AddTaskModal({ sectionId, onClose }: { sectionId: string; onClose: () =
     e.preventDefault()
     if (!form.title.trim()) return
     store.createTask(sectionId, { title: form.title.trim(), description: form.description, status: 'ACTIVE', priority: form.priority, assigned_to_list: form.assignees, deadline: form.deadline || null })
+    showToast('Task created successfully!', 'success')
     onClose()
   }
 
@@ -1139,11 +1142,11 @@ function TaskDetailModal({ task, onClose, showConfirm }: { task: ExtendedTask; o
   )
 }
 
-function NewProjectModal({ onClose }: { onClose: () => void }) {
+function NewProjectModal({ onClose, showToast }: { onClose: () => void; showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
   const [name, setName] = useState('')
   return (
     <Modal title="New project" onClose={onClose}>
-      <form onSubmit={e => { e.preventDefault(); if (name.trim()) { store.createProject(name.trim()); onClose() } }}>
+      <form onSubmit={e => { e.preventDefault(); if (name.trim()) { store.createProject(name.trim()); showToast('Project created successfully!', 'success'); onClose() } }}>
         <Label>Name</Label>
         <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Project name" style={inputStyle} autoFocus />
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
@@ -1155,7 +1158,7 @@ function NewProjectModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-function NewSectionModal({ onClose }: { onClose: () => void }) {
+function NewSectionModal({ onClose, showToast }: { onClose: () => void; showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
   const colors = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#06b6d4']
   const [name, setName] = useState('')
   const [color, setColor] = useState(colors[0])
@@ -1166,7 +1169,7 @@ function NewSectionModal({ onClose }: { onClose: () => void }) {
 
   return (
     <Modal title="New section" onClose={onClose}>
-      <form onSubmit={e => { e.preventDefault(); if (name.trim()) { store.createSection(name.trim(), color, roles); onClose() } }}>
+      <form onSubmit={e => { e.preventDefault(); if (name.trim()) { store.createSection(name.trim(), color, roles); showToast('Section created successfully!', 'success'); onClose() } }}>
         <Label>Name</Label>
         <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g., Backend, Design" style={inputStyle} autoFocus />
         <Label style={{ marginTop: 16 }}>Color</Label>
@@ -1188,12 +1191,12 @@ function NewSectionModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-function JoinModal({ onClose }: { onClose: () => void }) {
+function JoinModal({ onClose, showToast }: { onClose: () => void; showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   return (
     <Modal title="Join project" onClose={onClose}>
-      <form onSubmit={e => { e.preventDefault(); if (store.joinProject(code.trim())) onClose(); else setError('Invalid code') }}>
+      <form onSubmit={e => { e.preventDefault(); if (store.joinProject(code.trim())) { showToast('Successfully joined project!', 'success'); onClose() } else { setError('Invalid invite code'); showToast('Invalid invite code!', 'error') } }}>
         {error && <div style={{ backgroundColor: theme.status.high.bg, borderRadius: theme.radius.sm, padding: '10px 14px', marginBottom: 16, color: theme.status.high.text, fontSize: 13 }}>{error}</div>}
         <Label>Invite code</Label>
         <input type="text" value={code} onChange={e => setCode(e.target.value)} placeholder="Enter code" style={inputStyle} autoFocus />

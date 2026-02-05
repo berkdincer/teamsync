@@ -290,15 +290,6 @@ class Store {
       isAuthenticated = true
       currentUserId = newUser.id
 
-      // Sync profile to DB
-      await supabase.from('profiles').insert({
-        id: newUser.id,
-        email: newUser.email,
-        full_name: newUser.full_name,
-        username: newUser.username,
-        created_at: newUser.created_at
-      })
-
       this.notify()
       return newUser
     }

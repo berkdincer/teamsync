@@ -3,6 +3,17 @@
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH'
 export type TaskStatus = 'ACTIVE' | 'DONE' | 'FAILED'
 
+export interface Profile {
+  id: string
+  updated_at: string | null
+  username: string | null
+  full_name: string | null
+  avatar_url: string | null
+  website: string | null
+  email: string | null
+  created_at: string
+}
+
 export interface User {
   id: string
   email: string

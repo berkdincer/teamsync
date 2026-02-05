@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, User, ArrowRight, Github } from 'lucide-react'
 import { supabase, isConfigured } from '@/lib/supabaseClient'
+import { useToast } from '@/components/Toast'
 
 export default function AuthPage() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -15,13 +17,12 @@ export default function AuthPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // e.stopPropagation() // Optional extra safety
     console.log('Form Submitted, Default Prevented')
     console.log('Button Clicked')
     setLoading(true)
 
     if (!isConfigured) {
-      alert('CONFIGURATION ERROR: Supabase environment variables are missing. Please create a .env.local file with your keys.')
+      showToast('Configuration error. Please check your .env.local file.', 'error')
       setLoading(false)
       return
     }
@@ -35,13 +36,13 @@ export default function AuthPage() {
         })
 
         if (error) {
-          alert('Supabase Error: ' + error.message)
+          showToast('Login failed: ' + error.message, 'error')
           setLoading(false)
           return
         }
 
         if (data.user) {
-          // alert('Success! Logged in: ' + data.user.email)
+          showToast('Successfully logged in!', 'success')
           router.push('/')
         }
       } else {
@@ -59,36 +60,19 @@ export default function AuthPage() {
         })
 
         if (error) {
-          alert('Supabase Error: ' + error.message)
+          showToast('Registration failed: ' + error.message, 'error')
           setLoading(false)
           return
         }
 
         if (data.user) {
-          alert('Success! User created: ' + data.user.email)
-
-          // Manual Profile Creation (Backup)
-          console.log('Attempting manual profile insertion...')
-          const { error: profileError } = await supabase.from('profiles').insert({
-            id: data.user.id,
-            email: email,
-            full_name: fullName,
-            created_at: new Date().toISOString()
-          })
-
-          if (profileError) {
-            console.error('Manual profile insert failed:', profileError)
-            alert('Warning: Profile creation failed but user exists. Error: ' + profileError.message)
-          } else {
-            console.log('Manual profile insert success')
-          }
-
+          showToast('Account created successfully!', 'success')
           router.push('/')
         }
       }
     } catch (error: any) {
       console.error('System/Network Error:', error)
-      alert('System Error: ' + error)
+      showToast('System error: ' + error, 'error')
     } finally {
       setLoading(false)
     }
@@ -104,10 +88,10 @@ export default function AuthPage() {
         }
       })
       if (error) {
-        alert('Google Auth Error: ' + error.message)
+        showToast('Google login failed: ' + error.message, 'error')
       }
     } catch (error: any) {
-      alert('System Error during Google Auth: ' + error)
+      showToast('Google connection error: ' + error, 'error')
     } finally {
       setLoading(false)
     }
