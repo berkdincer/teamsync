@@ -221,9 +221,41 @@ class Store {
       }
 
       this.notify()
+
+      // Initialize Realtime Subscription
+      this.initRealtime()
     } catch (e) {
       console.error('Failed to sync with Supabase', e)
     }
+  }
+
+  // ============ REALTIME ============
+  private initRealtime() {
+    supabase
+      .channel('public:task_comments')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'task_comments' }, (payload) => {
+        const newComment = payload.new as TaskComment
+
+        // Avoid duplicates (if we just created it locally)
+        if (taskComments.some(c => c.id === newComment.id)) return
+
+        console.log('New comment received via realtime:', newComment)
+
+        const author = users.find(u => u.id === newComment.user_id)
+        const commentWithUser: TaskComment = {
+          ...newComment,
+          user_name: author ? author.full_name : (newComment.user_name || 'Unknown User'),
+          timestamp: newComment.timestamp || new Date().toISOString()
+        }
+
+        taskComments.push(commentWithUser)
+        this.notify()
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('Subscribed to task_comments changes')
+        }
+      })
   }
 
   private save() {
