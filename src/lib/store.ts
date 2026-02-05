@@ -234,25 +234,16 @@ class Store {
 
   private initRealtime() {
     // Prevent duplicate subscriptions
-    if (this.realtimeChannel) {
-      console.log('[Realtime] Already subscribed, skipping...')
-      return
-    }
-
-    console.log('[Realtime] Initializing subscription...')
+    if (this.realtimeChannel) return
 
     this.realtimeChannel = supabase.channel('task-comments-realtime')
 
     this.realtimeChannel
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'task_comments' }, (payload) => {
-        console.log('[Realtime] New comment received:', payload)
         const newComment = payload.new as TaskComment
 
         // Avoid duplicates (if we just created it locally)
-        if (taskComments.some(c => c.id === newComment.id)) {
-          console.log('[Realtime] Comment already exists locally, skipping')
-          return
-        }
+        if (taskComments.some(c => c.id === newComment.id)) return
 
         const author = users.find(u => u.id === newComment.user_id)
         const commentWithUser: TaskComment = {
@@ -262,22 +253,9 @@ class Store {
         }
 
         taskComments.push(commentWithUser)
-        console.log('[Realtime] Added new comment, notifying UI...')
         this.notify()
       })
-      .subscribe((status, err) => {
-        console.log('[Realtime] Subscription status:', status)
-        if (err) {
-          console.error('[Realtime] Subscription error:', err)
-        }
-        if (status === 'SUBSCRIBED') {
-          console.log('[Realtime] ✅ Successfully subscribed to task_comments!')
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('[Realtime] ❌ Channel error - check Supabase Realtime settings')
-        } else if (status === 'TIMED_OUT') {
-          console.error('[Realtime] ❌ Connection timed out')
-        }
-      })
+      .subscribe()
   }
 
   private save() {
