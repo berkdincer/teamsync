@@ -19,12 +19,21 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         detectSessionInUrl: true,
     },
     global: {
-        fetch: (url, options = {}) => {
-            // Prevent AbortController issues by using a longer timeout
-            return fetch(url, {
-                ...options,
-                signal: undefined, // Remove any abort signal to prevent AbortError
-            })
+        fetch: async (url, options = {}) => {
+            try {
+                return await fetch(url, options)
+            } catch (error: any) {
+                // Silently handle AbortError - these are expected during navigation/refresh
+                if (error?.name === 'AbortError') {
+                    console.log('[Supabase] Request aborted (expected during navigation)')
+                    // Return an empty response to prevent cascading errors
+                    return new Response(JSON.stringify({}), {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                }
+                throw error
+            }
         }
     },
     realtime: {

@@ -405,11 +405,18 @@ function Dashboard() {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('[Auth] State changed:', event, session?.user?.email)
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        await store.sync()
-        if (mounted) refreshAll()
-      } else if (event === 'SIGNED_OUT') {
-        if (mounted) refreshAll()
+      try {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          await store.sync()
+          if (mounted) refreshAll()
+        } else if (event === 'SIGNED_OUT') {
+          if (mounted) refreshAll()
+        }
+      } catch (error: any) {
+        // Ignore AbortError during auth state changes
+        if (error?.name !== 'AbortError') {
+          console.error('[Auth] Error during state change:', error)
+        }
       }
     })
 
