@@ -235,38 +235,86 @@ class Store {
 
       // Initialize Realtime Subscription
       this.initRealtime()
-    } catch (e) {
+    } catch (e: any) {
+      // Ignore AbortError - these are expected during navigation/refresh
+      if (e?.name === 'AbortError' || e?.message?.includes('aborted')) {
+        console.log('[Store] Sync aborted (expected during navigation)')
+        return
+      }
       console.error('Failed to sync with Supabase', e)
     }
   }
 
   // ============ REALTIME ============
   private realtimeChannel: ReturnType<typeof supabase.channel> | null = null
+  private realtimeRetryCount = 0
+  private maxRealtimeRetries = 3
 
   private initRealtime() {
     // Prevent duplicate subscriptions
-    if (this.realtimeChannel) return
+    if (this.realtimeChannel) {
+      // Check if channel is still connected
+      const state = this.realtimeChannel.state
+      if (state === 'joined' || state === 'joining') return
+      // If disconnected, clean up and recreate
+      this.cleanupRealtime()
+    }
 
-    this.realtimeChannel = supabase.channel('task-comments-realtime')
+    try {
+      this.realtimeChannel = supabase.channel('task-comments-realtime')
 
-    this.realtimeChannel
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'task_comments' }, (payload) => {
-        const newComment = payload.new as TaskComment
+      this.realtimeChannel
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'task_comments' }, (payload) => {
+          const newComment = payload.new as TaskComment
 
-        // Avoid duplicates (if we just created it locally)
-        if (taskComments.some(c => c.id === newComment.id)) return
+          // Avoid duplicates (if we just created it locally)
+          if (taskComments.some(c => c.id === newComment.id)) return
 
-        const author = users.find(u => u.id === newComment.user_id)
-        const commentWithUser: TaskComment = {
-          ...newComment,
-          user_name: author ? author.full_name : (newComment.user_name || 'Unknown User'),
-          timestamp: newComment.timestamp || new Date().toISOString()
-        }
+          const author = users.find(u => u.id === newComment.user_id)
+          const commentWithUser: TaskComment = {
+            ...newComment,
+            user_name: author ? author.full_name : (newComment.user_name || 'Unknown User'),
+            timestamp: newComment.timestamp || new Date().toISOString()
+          }
 
-        taskComments.push(commentWithUser)
-        this.notify()
-      })
-      .subscribe()
+          taskComments.push(commentWithUser)
+          this.notify()
+        })
+        .subscribe((status) => {
+          console.log('[Realtime] Status:', status)
+          if (status === 'SUBSCRIBED') {
+            this.realtimeRetryCount = 0 // Reset retry count on success
+          } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            // Attempt to reconnect after a delay
+            this.handleRealtimeError()
+          }
+        })
+    } catch (e) {
+      console.error('[Realtime] Failed to initialize:', e)
+      this.handleRealtimeError()
+    }
+  }
+
+  private cleanupRealtime() {
+    if (this.realtimeChannel) {
+      try {
+        supabase.removeChannel(this.realtimeChannel)
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+      this.realtimeChannel = null
+    }
+  }
+
+  private handleRealtimeError() {
+    this.cleanupRealtime()
+    if (this.realtimeRetryCount < this.maxRealtimeRetries) {
+      this.realtimeRetryCount++
+      console.log(`[Realtime] Reconnecting... attempt ${this.realtimeRetryCount}/${this.maxRealtimeRetries}`)
+      setTimeout(() => this.initRealtime(), 3000 * this.realtimeRetryCount) // Exponential backoff
+    } else {
+      console.error('[Realtime] Max retries reached, giving up')
+    }
   }
 
   private save() {
