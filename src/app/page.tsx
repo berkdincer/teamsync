@@ -327,6 +327,7 @@ function Dashboard() {
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null)
   const [copied, setCopied] = useState(false)
   const [refresh, setRefresh] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
   const refreshAll = useCallback(() => {
     setCurrentUser(store.getCurrentUser())
@@ -336,6 +337,37 @@ function Dashboard() {
     setMembers(store.getProjectMembers())
     setRefresh(r => r + 1)
   }, [])
+
+  // Auth state listener - restore session on page load
+  useEffect(() => {
+    let mounted = true
+
+    // Initial sync on mount
+    const initAuth = async () => {
+      await store.sync()
+      if (mounted) {
+        refreshAll()
+        setIsLoading(false)
+      }
+    }
+    initAuth()
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[Auth] State changed:', event, session?.user?.email)
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        await store.sync()
+        if (mounted) refreshAll()
+      } else if (event === 'SIGNED_OUT') {
+        if (mounted) refreshAll()
+      }
+    })
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [refreshAll])
 
   useEffect(() => { refreshAll(); return store.subscribe(refreshAll) }, [refreshAll])
 
