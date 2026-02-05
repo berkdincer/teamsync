@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 
 // Toast types
 type ToastType = 'success' | 'error' | 'info' | 'warning'
@@ -9,6 +9,7 @@ interface Toast {
     id: string
     message: string
     type: ToastType
+    visible: boolean
 }
 
 interface ToastContextType {
@@ -26,31 +27,43 @@ export function useToast() {
 }
 
 // Toast colors matching the app's theme
-const toastStyles: Record<ToastType, { bg: string; border: string; icon: string }> = {
+const toastStyles: Record<ToastType, { bg: string; border: string; text: string; icon: string }> = {
     success: {
-        bg: 'rgba(16, 185, 129, 0.15)',
-        border: 'rgba(16, 185, 129, 0.4)',
+        bg: '#065f46',
+        border: '#10b981',
+        text: '#d1fae5',
         icon: '✓'
     },
     error: {
-        bg: 'rgba(239, 68, 68, 0.15)',
-        border: 'rgba(239, 68, 68, 0.4)',
+        bg: '#7f1d1d',
+        border: '#ef4444',
+        text: '#fecaca',
         icon: '✕'
     },
     warning: {
-        bg: 'rgba(245, 158, 11, 0.15)',
-        border: 'rgba(245, 158, 11, 0.4)',
-        icon: '!'
+        bg: '#78350f',
+        border: '#f59e0b',
+        text: '#fef3c7',
+        icon: '⚠'
     },
     info: {
-        bg: 'rgba(59, 130, 246, 0.15)',
-        border: 'rgba(59, 130, 246, 0.4)',
+        bg: '#1e3a8a',
+        border: '#3b82f6',
+        text: '#dbeafe',
         icon: 'ℹ'
     },
 }
 
 function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) {
     const style = toastStyles[toast.type]
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        // Trigger animation after mount
+        requestAnimationFrame(() => {
+            setMounted(true)
+        })
+    }, [])
 
     return (
         <div
@@ -59,24 +72,26 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
                 alignItems: 'center',
                 gap: '12px',
                 padding: '14px 18px',
-                background: style.bg,
-                border: `1px solid ${style.border}`,
-                borderRadius: '12px',
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                animation: 'slideIn 0.3s ease-out',
-                maxWidth: '400px',
+                backgroundColor: style.bg,
+                border: `2px solid ${style.border}`,
+                borderRadius: '10px',
+                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+                maxWidth: '380px',
+                minWidth: '280px',
+                opacity: mounted && toast.visible ? 1 : 0,
+                transform: mounted && toast.visible ? 'translateX(0)' : 'translateX(100px)',
+                transition: 'all 0.3s ease-out',
             }}
         >
             <span style={{
-                fontSize: '16px',
-                fontWeight: 600,
-                opacity: 0.9,
+                fontSize: '18px',
+                fontWeight: 700,
+                color: style.text,
             }}>
                 {style.icon}
             </span>
             <span style={{
-                color: 'rgba(255, 255, 255, 0.9)',
+                color: style.text,
                 fontSize: '14px',
                 fontWeight: 500,
                 flex: 1,
@@ -88,11 +103,12 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
                 style={{
                     background: 'transparent',
                     border: 'none',
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    color: style.text,
                     cursor: 'pointer',
                     padding: '4px',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     lineHeight: 1,
+                    opacity: 0.7,
                 }}
             >
                 ✕
@@ -106,34 +122,45 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
     const showToast = useCallback((message: string, type: ToastType = 'info') => {
         const id = Math.random().toString(36).substring(2, 9)
-        const newToast: Toast = { id, message, type }
+        const newToast: Toast = { id, message, type, visible: true }
+
+        console.log('[Toast] Showing:', message, type) // Debug log
 
         setToasts(prev => [...prev, newToast])
 
         // Auto remove after 4 seconds
         setTimeout(() => {
-            setToasts(prev => prev.filter(t => t.id !== id))
+            setToasts(prev => prev.map(t => t.id === id ? { ...t, visible: false } : t))
+            // Actually remove after fade out animation
+            setTimeout(() => {
+                setToasts(prev => prev.filter(t => t.id !== id))
+            }, 300)
         }, 4000)
     }, [])
 
     const removeToast = useCallback((id: string) => {
-        setToasts(prev => prev.filter(t => t.id !== id))
+        setToasts(prev => prev.map(t => t.id === id ? { ...t, visible: false } : t))
+        setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id))
+        }, 300)
     }, [])
 
     return (
         <ToastContext.Provider value={{ showToast }}>
             {children}
 
-            {/* Toast Container */}
+            {/* Toast Container - Fixed position, high z-index */}
             <div
+                id="toast-container"
                 style={{
                     position: 'fixed',
-                    top: '20px',
-                    right: '20px',
-                    zIndex: 9999,
+                    top: '24px',
+                    right: '24px',
+                    zIndex: 999999,
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '10px',
+                    gap: '12px',
+                    pointerEvents: 'auto',
                 }}
             >
                 {toasts.map(toast => (
@@ -144,20 +171,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     />
                 ))}
             </div>
-
-            {/* Animation keyframes */}
-            <style jsx global>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(100px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-      `}</style>
         </ToastContext.Provider>
     )
 }
