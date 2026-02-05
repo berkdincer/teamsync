@@ -124,9 +124,26 @@ class Store {
   // Sync with Supabase
   private syncRetryCount = 0
   private maxSyncRetries = 3
+  private isSyncing = false
+  private syncRetryTimeout: ReturnType<typeof setTimeout> | null = null
 
   async sync(isRetry = false) {
     if (typeof window === 'undefined') return
+
+    // Prevent concurrent sync calls
+    if (this.isSyncing && !isRetry) {
+      console.log('[Store] Sync already in progress, skipping')
+      return
+    }
+
+    // Clear any pending retry if this is a fresh sync call
+    if (!isRetry && this.syncRetryTimeout) {
+      clearTimeout(this.syncRetryTimeout)
+      this.syncRetryTimeout = null
+      this.syncRetryCount = 0
+    }
+
+    this.isSyncing = true
 
     try {
       // 1. Load User - First try getSession (faster, cached), then getUser as fallback
@@ -236,6 +253,7 @@ class Store {
 
       // Reset retry count on success
       this.syncRetryCount = 0
+      this.isSyncing = false
       this.notify()
 
       // Initialize Realtime Subscription
@@ -243,21 +261,23 @@ class Store {
     } catch (e: any) {
       // Handle AbortError - retry after a delay
       if (e?.name === 'AbortError' || e?.message?.includes('aborted')) {
-        console.log('[Store] Sync aborted (expected during navigation)')
+        console.log('[Store] Sync aborted, will retry...')
 
         // Schedule a retry if we haven't exceeded max retries
         if (this.syncRetryCount < this.maxSyncRetries) {
           this.syncRetryCount++
           const delay = 2000 * this.syncRetryCount // 2s, 4s, 6s
-          console.log(`[Store] Scheduling retry ${this.syncRetryCount}/${this.maxSyncRetries} in ${delay}ms`)
-          setTimeout(() => this.sync(true), delay)
+          console.log(`[Store] Retry ${this.syncRetryCount}/${this.maxSyncRetries} in ${delay}ms`)
+          this.syncRetryTimeout = setTimeout(() => this.sync(true), delay)
         } else {
-          console.error('[Store] Max sync retries reached')
+          console.log('[Store] Max retries reached, resetting')
           this.syncRetryCount = 0
+          this.isSyncing = false
         }
         return
       }
       console.error('Failed to sync with Supabase', e)
+      this.isSyncing = false
     }
   }
 
