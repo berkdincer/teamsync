@@ -274,7 +274,7 @@ function LoginPage({ onSwitch }: { onSwitch: () => void }) {
           <button type="submit" style={btnPrimary}>Sign in</button>
         </form>
         <p style={{ textAlign: 'center', marginTop: 32, color: theme.text.muted, fontSize: 13 }}>
-          Don't have an account? <button onClick={onSwitch} style={{ background: 'none', border: 'none', color: theme.accent.primary, cursor: 'pointer', fontWeight: 500 }}>Create one</button>
+          Don&apos;t have an account? <button onClick={onSwitch} style={{ background: 'none', border: 'none', color: theme.accent.primary, cursor: 'pointer', fontWeight: 500 }}>Create one</button>
         </p>
       </div>
     </div>
@@ -828,7 +828,7 @@ function TaskCard({ task, isDone, isFailed, onToggle, onClick, canEdit, showConf
                 gap: 6,
               }}
             >
-              <span style={{ fontSize: 14 }}>▶</span> I'm working on this
+              <span style={{ fontSize: 14 }}>▶</span> I&apos;m working on this
             </button>
           )}
         </div>
@@ -1531,7 +1531,7 @@ function SearchModal({ onClose, onSelectTask }: { onClose: () => void; onSelectT
             </div>
           ) : results.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: theme.text.faint, fontSize: 13 }}>
-              No results found for "{query}"
+              No results found for &quot;{query}&quot;
             </div>
           ) : (
             <div style={{ padding: 8 }}>

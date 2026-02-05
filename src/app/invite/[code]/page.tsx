@@ -17,7 +17,7 @@ export default function InvitePage() {
     // and add the user to the project
     await new Promise(resolve => setTimeout(resolve, 1500))
     setJoined(true)
-    
+
     setTimeout(() => {
       router.push('/')
     }, 1500)
@@ -30,7 +30,7 @@ export default function InvitePage() {
           <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">You're in! 🎉</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">You&apos;re in! 🎉</h1>
           <p className="text-white/50">Redirecting to dashboard...</p>
         </div>
       </div>
@@ -45,7 +45,7 @@ export default function InvitePage() {
         </div>
 
         <h1 className="text-2xl font-bold text-white mb-2">
-          You've been invited!
+          You&apos;ve been invited!
         </h1>
         <p className="text-white/50 mb-6">
           Someone invited you to join their project on TeamSync
@@ -74,7 +74,7 @@ export default function InvitePage() {
         </button>
 
         <p className="text-white/30 text-sm mt-4">
-          Don't have an account? You'll create one after joining.
+          Don&apos;t have an account? You&apos;ll create one after joining.
         </p>
       </div>
     </div>
