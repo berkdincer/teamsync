@@ -230,16 +230,29 @@ class Store {
   }
 
   // ============ REALTIME ============
+  private realtimeChannel: ReturnType<typeof supabase.channel> | null = null
+
   private initRealtime() {
-    supabase
-      .channel('public:task_comments')
+    // Prevent duplicate subscriptions
+    if (this.realtimeChannel) {
+      console.log('[Realtime] Already subscribed, skipping...')
+      return
+    }
+
+    console.log('[Realtime] Initializing subscription...')
+
+    this.realtimeChannel = supabase.channel('task-comments-realtime')
+
+    this.realtimeChannel
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'task_comments' }, (payload) => {
+        console.log('[Realtime] New comment received:', payload)
         const newComment = payload.new as TaskComment
 
         // Avoid duplicates (if we just created it locally)
-        if (taskComments.some(c => c.id === newComment.id)) return
-
-        console.log('New comment received via realtime:', newComment)
+        if (taskComments.some(c => c.id === newComment.id)) {
+          console.log('[Realtime] Comment already exists locally, skipping')
+          return
+        }
 
         const author = users.find(u => u.id === newComment.user_id)
         const commentWithUser: TaskComment = {
@@ -249,11 +262,20 @@ class Store {
         }
 
         taskComments.push(commentWithUser)
+        console.log('[Realtime] Added new comment, notifying UI...')
         this.notify()
       })
-      .subscribe((status) => {
+      .subscribe((status, err) => {
+        console.log('[Realtime] Subscription status:', status)
+        if (err) {
+          console.error('[Realtime] Subscription error:', err)
+        }
         if (status === 'SUBSCRIBED') {
-          console.log('Subscribed to task_comments changes')
+          console.log('[Realtime] ✅ Successfully subscribed to task_comments!')
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[Realtime] ❌ Channel error - check Supabase Realtime settings')
+        } else if (status === 'TIMED_OUT') {
+          console.error('[Realtime] ❌ Connection timed out')
         }
       })
   }
