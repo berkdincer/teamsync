@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { store, Section, ExtendedTask, ExtendedUser, DEFAULT_ROLE_TEMPLATES, TaskComment, ProjectRole, RolePermissions, DEFAULT_PERMISSIONS } from '@/lib/store'
 import type { Project, Priority, TaskStatus, ProjectMember } from '@/types/database'
+import { supabase } from '@/lib/supabaseClient'
 import confetti from 'canvas-confetti'
 
 // ============ PREMIUM DESIGN TOKENS ============
@@ -546,7 +547,36 @@ function Column({ section, isOwner, onTaskClick, onAddTask, onEditSection, refre
   const [tasks, setTasks] = useState<(ExtendedTask & { assignees: (ExtendedUser & { role_titles: string[] })[] })[]>([])
   const canEdit = store.canEditSection(section.id)
 
-  useEffect(() => { setTasks(store.getTasks(section.id)) }, [section.id, refresh])
+  useEffect(() => {
+    // Fetch tasks directly from Supabase as requested
+    const fetchTasks = async () => {
+      const { data } = await supabase.from('tasks').select('*').eq('section_id', section.id)
+
+      if (data) {
+        // Map raw tasks to extended tasks with assignees
+        const extendedTasks = data.map((t: any) => {
+          const membersList = store.getProjectMembers()
+          const assignees = (t.assigned_to_list || [])
+            .map((uid: string) => {
+              const m = membersList.find(mem => mem.user_id === uid)
+              return m ? { ...m.user, role_titles: m.role_titles } : null
+            })
+            .filter(Boolean)
+
+          return {
+            ...t,
+            assignees
+          }
+        })
+        setTasks(extendedTasks)
+      }
+    }
+
+    fetchTasks()
+
+    // Subscribe to realtime changes? 
+    // Or simpler: trigger re-fetch on refresh signal (which happens when store.notify is called)
+  }, [section.id, refresh])
 
   const toggleTask = (id: string, e: React.MouseEvent) => {
     e.stopPropagation()

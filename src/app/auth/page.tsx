@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, User, ArrowRight, Github } from 'lucide-react'
-import { supabase } from '@/lib/supabaseClient'
+import { supabase, isConfigured } from '@/lib/supabaseClient'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -15,8 +15,16 @@ export default function AuthPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // e.stopPropagation() // Optional extra safety
+    console.log('Form Submitted, Default Prevented')
     console.log('Button Clicked')
     setLoading(true)
+
+    if (!isConfigured) {
+      alert('CONFIGURATION ERROR: Supabase environment variables are missing. Please create a .env.local file with your keys.')
+      setLoading(false)
+      return
+    }
 
     try {
       if (isLogin) {
@@ -185,6 +193,7 @@ export default function AuthPage() {
 
             {/* Google Auth */}
             <button
+              type="button"
               onClick={handleGoogleAuth}
               disabled={loading}
               className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white text-dark-900 font-medium hover:bg-white/90 transition-colors disabled:opacity-50 mb-6"
@@ -275,6 +284,7 @@ export default function AuthPage() {
             <p className="text-center text-white/50 mt-6 text-sm">
               {isLogin ? "Don't have an account?" : "Already have an account?"}
               <button
+                type="button"
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-accent-400 hover:text-accent-300 ml-1"
               >

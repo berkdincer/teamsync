@@ -39,12 +39,17 @@ export interface Section {
 export interface Task {
   id: string
   project_id: string
+  section_id: string
   title: string
   description: string | null
   status: TaskStatus
   priority: Priority
   due_date: string | null
+  deadline: string | null
   assigned_to: string | null
+  assigned_to_list: string[]
+  working_on_by: string[]
+  working_on_started: string | null
   created_at: string
   updated_at: string
 }
