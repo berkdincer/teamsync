@@ -115,9 +115,8 @@ class Store {
   private currentProjectId: string | null = null
 
   constructor() {
-    if (typeof window !== 'undefined') {
-      this.sync()
-    }
+    // Don't sync here - let React component control when to sync
+    // This prevents race conditions with React lifecycle
   }
 
   // ============ PERSISTENCE ============
