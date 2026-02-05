@@ -122,18 +122,18 @@ class Store {
   // ============ PERSISTENCE ============
   // Sync with Supabase
   private isSyncing = false
+  private syncRetryCount = 0
+  private readonly MAX_SYNC_RETRIES = 3
 
-  async sync() {
+  async sync(): Promise<void> {
     if (typeof window === 'undefined') return
 
     // Prevent concurrent sync calls
     if (this.isSyncing) {
-      console.log('[Store] Sync already in progress, skipping')
       return
     }
 
     this.isSyncing = true
-    console.log('[Store] Starting sync...')
 
     try {
       // 1. Load User - First try getSession (faster, cached), then getUser as fallback
@@ -241,15 +241,39 @@ class Store {
         }
       }
 
-      console.log('[Store] Sync completed successfully')
+      // Success! Reset retry count
+      this.syncRetryCount = 0
       this.isSyncing = false
+      console.log('[Store] Sync completed successfully')
       this.notify()
 
       // Initialize Realtime Subscription
       this.initRealtime()
     } catch (e: any) {
-      console.error('[Store] Sync failed:', e?.message || e)
       this.isSyncing = false
+
+      // Check if this is an AbortError
+      const isAbortError = e?.name === 'AbortError' ||
+        e?.message?.includes('aborted') ||
+        e?.message?.includes('signal')
+
+      if (isAbortError) {
+        // AbortError during navigation/unmount - retry silently
+        if (this.syncRetryCount < this.MAX_SYNC_RETRIES) {
+          this.syncRetryCount++
+          console.log(`[Store] Request interrupted, retrying (${this.syncRetryCount}/${this.MAX_SYNC_RETRIES})...`)
+          // Wait a bit and retry
+          setTimeout(() => this.sync(), 1500)
+        } else {
+          // Max retries reached - reset and let user trigger manually
+          console.log('[Store] Sync temporarily unavailable, will retry on next action')
+          this.syncRetryCount = 0
+        }
+        return
+      }
+
+      // Other errors - log them
+      console.error('[Store] Sync failed:', e?.message || e)
     }
   }
 
